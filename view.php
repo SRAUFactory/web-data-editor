@@ -1,6 +1,3 @@
-<?php
-$pageTitle = "CSV/TSV形式編集ツール（Web版）";
-?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -14,32 +11,32 @@ $pageTitle = "CSV/TSV形式編集ツール（Web版）";
 <body>
 <h1><?= $pageTitle ?></h1>
 <h2>編集対象のCSV/TSVファイルを読み込んでください</h2>
-<form action="edit.php" method="post" enctype="multipart/form-data">
+<form action="index.php" method="post" enctype="multipart/form-data">
 <input type="file" name="tsv_file">
 <input type="submit" name="load" value="読み込み">
+<input type="submit" name="download" value="保存">
+<input type="hidden" name="fileName" value="<?= $fileName ?>">
 <?php if (count($tsvData) > 0) { ?>
 <h2><?= $fileName ?>の内容</h2>
 <table>
-<?php
-	foreach ($tsvData as $row => $rowData) {
-		$rowData = preg_replace("/\\t/", ",", $rowData);
-		$rowValues = explode(",", $rowData);
-		if (count($rowValues) <= 1)  {
-			continue;
-		}
-?>
 <tr>
+<td></td>
+<td></td>
+<?php foreach ($tsvData[0] as $col => $rowValue) { ?>
+<td><input type="submit" name="<?= "addCol[0][{$col}]" ?>" value="+"></td>
+<?php } ?>
+</tr>
+<?php foreach ($tsvData as $row => $rowData) { ?>
+<tr>
+<td><input type="submit" name="<?= "addRow[{$row}][0]" ?>" value="+"></td>
 <td><?= $row ?></td>
-<?php foreach ($rowValues as $col => $rowValue) { ?>
+<?php foreach ($rowData as $col => $rowValue) { ?>
 <td><input type="text" name="<?= "data[{$row}][{$col}]" ?>" value="<?= $rowValue ?>"></td>
 <?php } ?>
 </tr>
 <?php } ?>
 </table>
-<h2>編集後のファイルのダウンロードはこちら</h2>
-<input type="hidden" name="fileName" value="<?= $fileName ?>">
-<input type="submit" name="download" value="ダウンロード"><br>
-</form>
 <?php } ?>
+</form>
 </body>
 </html>
