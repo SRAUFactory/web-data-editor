@@ -12,8 +12,7 @@
 <h1><?= $pageTitle ?></h1>
 <h2>編集対象のCSV/TSVファイルを読み込んでください</h2>
 <form action="index.php" method="post" enctype="multipart/form-data">
-<input type="file" name="tsv_file">
-<input type="submit" name="load" value="読み込み">
+<input type="file" name="tsv_file" onchange="document.forms[0].submit()">
 <input type="submit" name="download" value="保存">
 <input type="hidden" name="fileName" value="<?= $fileName ?>">
 <?php if (count($tsvData) > 0) { ?>

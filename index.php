@@ -11,20 +11,6 @@ if (isset($_POST["download"])) {
 		echo $rowValue . "\r\n";
 	}
 	return;
-} elseif (isset($_POST["load"])) {
-	$fileName = $_FILES["tsv_file"]["name"];
-	$tsvFileData = file_get_contents($_FILES["tsv_file"]["tmp_name"]);
-	$tempTsvData = explode("\r\n", $tsvFileData);
-	$tsvData = [];
-	foreach ($tempTsvData as $row => $rowData) {
-		$rowData = preg_replace("/\\t/", ",", $rowData);
-		$rowValues = explode(",", $rowData);
-		if (count($rowValues) <= 1) {
-			continue;
-		}
-
-		$tsvData[] = $rowValues;
-	}
 } elseif (isset($_POST["addRow"]) || isset($_POST["addCol"])) {
 	$tsvData = $_POST["data"];
 	$fileName = $_POST["fileName"];
@@ -47,6 +33,20 @@ if (isset($_POST["download"])) {
 			}
 			$tsvData[$row + $addRow][$col + $addCol] = $rowValue;
 		}
+	}
+} elseif (isset($_FILES["tsv_file"])) {
+	$fileName = $_FILES["tsv_file"]["name"];
+	$tsvFileData = file_get_contents($_FILES["tsv_file"]["tmp_name"]);
+	$tempTsvData = explode("\r\n", $tsvFileData);
+	$tsvData = [];
+	foreach ($tempTsvData as $row => $rowData) {
+		$rowData = preg_replace("/\\t/", ",", $rowData);
+		$rowValues = explode(",", $rowData);
+		if (count($rowValues) <= 1) {
+			continue;
+		}
+
+		$tsvData[] = $rowValues;
 	}
 }
 $pageTitle = "CSV/TSV形式編集ツール（Web版）";
