@@ -1,13 +1,17 @@
 <?php
+$columnsSeparetorByFileType = [
+	"tsv" => "\t",
+	"csv" => ",",
+];
 $tsvData = array();
-$fileName = "";
 if (isset($_POST["download"])) {
 	$tsvData = $_POST["data"];
 	$fileName = $_POST["fileName"];
-	header('Content-Type: text/csv');
-	header('Content-disposition: attachment; filename="'.$fileName.'"');
+	$fileType = $_POST["fileType"];
+	header('Content-Type: text/'. $fileType);
+	header('Content-disposition: attachment; filename="'.$fileName. "." . $fileType. '"');
 	foreach ($tsvData as $row => $rowData) {
-		$rowValue = implode("\t", $rowData);
+		$rowValue = implode($columnsSeparetorByFileType[$fileType], $rowData);
 		echo $rowValue . "\r\n";
 	}
 	return;
@@ -34,14 +38,15 @@ if (isset($_POST["download"])) {
 			$tsvData[$row + $addRow][$col + $addCol] = $rowValue;
 		}
 	}
-} elseif (isset($_FILES["tsv_file"])) {
-	$fileName = $_FILES["tsv_file"]["name"];
-	$tsvFileData = file_get_contents($_FILES["tsv_file"]["tmp_name"]);
+} elseif (isset($_FILES["uploadFile"])) {
+	$fileType = $_POST["fileType"];
+	$fileName = $_FILES["uploadFile"]["name"];
+	$fileName = str_replace("." . $fileType, "", $fileName);
+	$tsvFileData = file_get_contents($_FILES["uploadFile"]["tmp_name"]);
 	$tempTsvData = explode("\r\n", $tsvFileData);
-	$tsvData = [];
+	$separater = $columnsSeparetorByFileType[$fileType];
 	foreach ($tempTsvData as $row => $rowData) {
-		$rowData = preg_replace("/\\t/", ",", $rowData);
-		$rowValues = explode(",", $rowData);
+		$rowValues = explode($separater, $rowData);
 		if (count($rowValues) <= 1) {
 			continue;
 		}

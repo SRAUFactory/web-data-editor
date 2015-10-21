@@ -12,11 +12,15 @@
 <h1><?= $pageTitle ?></h1>
 <h2>編集対象のCSV/TSVファイルを読み込んでください</h2>
 <form action="index.php" method="post" enctype="multipart/form-data">
-<input type="file" name="tsv_file" onchange="document.forms[0].submit()">
+ファイル形式：<select name="fileType">
+<option value="csv">CSV</option>
+<option value="tsv">TSV</option>
+</select>
+<input type="file" name="uploadFile" onchange="document.forms[0].submit()">
 <input type="submit" name="download" value="保存">
-<input type="hidden" name="fileName" value="<?= $fileName ?>">
 <?php if (count($tsvData) > 0) { ?>
-<h2><?= $fileName ?>の内容</h2>
+<input type="hidden" name="fileName" value="<?= $fileName ?>">
+<h2><?= $fileName . "." . $fileType ?>の内容</h2>
 <table>
 <tr>
 <td></td>
