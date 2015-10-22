@@ -12,7 +12,7 @@ if (isset($_POST["download"])) {
 	header('Content-disposition: attachment; filename="'.$fileName. "." . $fileType. '"');
 	foreach ($tsvData as $row => $rowData) {
 		$rowValue = implode($columnsSeparetorByFileType[$fileType], $rowData);
-		echo $rowValue . "\r\n";
+		echo $rowValue . "\n";
 	}
 	return;
 } elseif (isset($_POST["addRow"]) || isset($_POST["addCol"])) {
@@ -43,17 +43,51 @@ if (isset($_POST["download"])) {
 	$fileName = $_FILES["uploadFile"]["name"];
 	$fileName = str_replace("." . $fileType, "", $fileName);
 	$tsvFileData = file_get_contents($_FILES["uploadFile"]["tmp_name"]);
-	$tempTsvData = explode("\r\n", $tsvFileData);
+	$tempTsvData = explode("\n", $tsvFileData);
 	$separater = $columnsSeparetorByFileType[$fileType];
 	foreach ($tempTsvData as $row => $rowData) {
 		$rowValues = explode($separater, $rowData);
 		if (count($rowValues) <= 1) {
 			continue;
 		}
-
 		$tsvData[] = $rowValues;
 	}
 }
 $pageTitle = "CSV/TSV形式編集ツール（Web版）";
-require_once 'view.php';
+$templete = file_get_contents("templete/index.html");
+$templete = str_replace("#####pageTitle#####", $pageTitle, $templete);
+$dataView = "";
+if (count($tsvData) > 0) {
+	$dataView = file_get_contents("templete/data.html");
+	$dataView = str_replace("#####fileName#####", $fileName, $dataView);
+	$dataView = str_replace("#####fileType#####", $fileType, $dataView);
+	
+	$header = "";
+	$addBtnView = <<<EOL
+<td><input type="submit" name="#####name#####" value="+"></td>
+EOL;
+	$inputTextView = <<<EOL
+<td><input type="text" name="#####name#####" value="#####rowValue#####"></td>
+EOL;
+	
+	foreach ($tsvData[0] as $col => $rowValue) {
+		$header .= str_replace("#####name#####", "addCol[0][{$col}]", $addBtnView);
+	}
+	$dataView = str_replace("#####header#####", $header, $dataView);
+
+	$dataTable = "";
+	foreach ($tsvData as $row => $rowData) {
+		$dataTable .= "<tr>";
+		$dataTable .= str_replace("#####name#####", "addRow[{$row}][0]", $addBtnView);
+		$dataTable .= "<td>{$row}</td>";
+		foreach ($rowData as $col => $rowValue) {
+			$inputView = str_replace("#####name#####", "data[{$row}][{$col}]" , $inputTextView);
+			$dataTable .= str_replace("#####rowValue#####", $rowValue, $inputView);
+		}
+		$dataTable .= "</tr>";
+	}
+	$dataView = str_replace("#####dataTable#####", $dataTable, $dataView);
+}
+$templete = str_replace("#####dataView#####", $dataView, $templete);
+echo $templete;
 ?>
