@@ -53,28 +53,7 @@ if (isset($_POST["download"])) {
 
 require_once('util/ViewUtil.php');
 $values["pageTitle"] = "CSV/TSV形式編集ツール（Web版）";
+$values["dataView"] = ViewUtil::renderDataTableView("data", $values);
 $view = ViewUtil::getView("index");
-$values["dataView"] = "";
-if (count($values["data"]) > 0) {
-    $dataView = ViewUtil::getView("data");
-    $values["header"] = "";
-    foreach ($values["data"][0] as $col => $rowValue) {
-        $values["header"] .= ViewUtil::assign(ViewUtil::TABLE_ADD_BTN_VIEW, "name", "addCol[0][{$col}]");
-    }
-
-    $dataTable = "";
-    foreach ($values["data"] as $row => $rowData) {
-	$dataTable .= "<tr>";
-        $dataTable .= ViewUtil::assign(ViewUtil::TABLE_ADD_BTN_VIEW, "name", "addRow[{$row}][0]");
-        $dataTable .= "<td>{$row}</td>";
-	foreach ($rowData as $col => $rowValue) {
-            $inputViewValues = ["name" => "data[{$row}][{$col}]", "rowValue" => $rowValue];
-	    $dataTable .= ViewUtil::render(ViewUtil::TABLE_INPUT_TEXT_VIEW, $inputViewValues);
-        }
-        $dataTable .= "</tr>";
-    }
-    $values["dataTable"] = $dataTable;
-    $values["dataView"] = ViewUtil::render($dataView, $values);
-}
 echo ViewUtil::render($view, $values);
 ?>
