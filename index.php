@@ -6,7 +6,7 @@ $columnsSeparetorByFileType = [
 $values = [];
 if (isset($_POST["download"])) {
     $values = $_POST;
-    header('Content-Type: text/'. $fileType);
+    header('Content-Type: text/'. $values["fileType"]);
     header('Content-disposition: attachment; filename="'.$values["fileName"]. "." . $values["fileType"]. '"');
     foreach ($values["data"] as $row => $rowData) {
     	$rowValue = implode($columnsSeparetorByFileType[$values["fileType"]], $rowData);
