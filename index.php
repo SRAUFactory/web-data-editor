@@ -58,26 +58,20 @@ $values["dataView"] = "";
 if (count($values["data"]) > 0) {
     $dataView = ViewUtil::getView("data");
     $values["header"] = "";
-    $addBtnView = <<<EOL
-<td><input type="submit" name="#####name#####" value="+"></td>
-EOL;
-    $inputTextView = <<<EOL
-<td><input type="text" name="#####name#####" value="#####rowValue#####"></td>
-EOL;
     foreach ($values["data"][0] as $col => $rowValue) {
-    	$values["header"] .= str_replace("#####name#####", "addCol[0][{$col}]", $addBtnView);
+        $values["header"] .= ViewUtil::assign(ViewUtil::TABLE_ADD_BTN_VIEW, "name", "addCol[0][{$col}]");
     }
 
     $dataTable = "";
     foreach ($values["data"] as $row => $rowData) {
-    	$dataTable .= "<tr>";
-    	$dataTable .= str_replace("#####name#####", "addRow[{$row}][0]", $addBtnView);
-    	$dataTable .= "<td>{$row}</td>";
-    	foreach ($rowData as $col => $rowValue) {
-    		$inputView = str_replace("#####name#####", "data[{$row}][{$col}]" , $inputTextView);
-    		$dataTable .= str_replace("#####rowValue#####", $rowValue, $inputView);
-    	}
-    	$dataTable .= "</tr>";
+	$dataTable .= "<tr>";
+        $dataTable .= ViewUtil::assign(ViewUtil::TABLE_ADD_BTN_VIEW, "name", "addRow[{$row}][0]");
+        $dataTable .= "<td>{$row}</td>";
+	foreach ($rowData as $col => $rowValue) {
+            $inputViewValues = ["name" => "data[{$row}][{$col}]", "rowValue" => $rowValue];
+	    $dataTable .= ViewUtil::render(ViewUtil::TABLE_INPUT_TEXT_VIEW, $inputViewValues);
+        }
+        $dataTable .= "</tr>";
     }
     $values["dataTable"] = $dataTable;
     $values["dataView"] = ViewUtil::render($dataView, $values);
