@@ -53,9 +53,11 @@ if (isset($_POST["download"])) {
     	$tsvData[] = $rowValues;
     }
 }
+
+require_once('util/ViewUtil.php');
 $pageTitle = "CSV/TSV形式編集ツール（Web版）";
-$templete = file_get_contents("templete/index.html");
-$templete = str_replace("#####pageTitle#####", $pageTitle, $templete);
+$view = ViewUtil::getView("index");
+$view = ViewUtil::assign($view, "pageTitle", $pageTitle);
 $dataView = "";
 if (count($tsvData) > 0) {
     $dataView = file_get_contents("templete/data.html");
@@ -88,6 +90,6 @@ EOL;
     }
     $dataView = str_replace("#####dataTable#####", $dataTable, $dataView);
 }
-$templete = str_replace("#####dataView#####", $dataView, $templete);
-echo $templete;
+$view = str_replace("#####dataView#####", $dataView, $view);
+echo $view;
 ?>
