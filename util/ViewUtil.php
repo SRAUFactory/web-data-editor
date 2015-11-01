@@ -9,7 +9,7 @@ EOL;
 EOL;
   
     const SELECT_LIST_VIEW = <<<EOL
-<select name="fileType">
+<select name=#####name#####>
 #####option#####
 </select>
 EOL;
@@ -59,7 +59,7 @@ EOL;
         return $renderView;
     }
 
-    public static function renderSelectList($selectName, $options, $selected) {
+    public static function renderSelectList($selectName, $options, $selected = "") {
         $optionView = "";
 	foreach ($options as $value => $option) {
 	    $values = ["value" => $value, "option" => $option];

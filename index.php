@@ -1,9 +1,6 @@
 <?php
-$columnsSeparetorByFileType = [
-    "tsv" => "\t",
-    "csv" => ",",
-];
-$values = [];
+$columnsSeparetorByFileType = ["tsv" => "\t", "csv" => ","];
+$values = ["fileType" => "csv", "lfCode" => "lf"];
 if (isset($_POST["download"])) {
     $values = $_POST;
     header('Content-Type: text/'. $values["fileType"]);
@@ -36,7 +33,7 @@ if (isset($_POST["download"])) {
     	}
     }
 } elseif (isset($_FILES["uploadFile"])) {
-    $values["fileType"] = $_POST["fileType"];
+    $values = $_POST;
     $values["fileName"] = str_replace("." . $values["fileType"], "", $_FILES["uploadFile"]["name"]);
     $values["data"] = [];
     $tsvFileData = file_get_contents($_FILES["uploadFile"]["tmp_name"]);
@@ -54,6 +51,7 @@ if (isset($_POST["download"])) {
 require_once('util/ViewUtil.php');
 $values["pageTitle"] = "CSV/TSV形式編集ツール（Web版）";
 $values["selectFileType"] = ViewUtil::renderSelectList("fileType", ["csv" => "CSV", "tsv" => "TSV"], $values["fileType"]);
+$values["selectLfCode"] = ViewUtil::renderSelectList("lfCode", ["crlf" => "CR+LF", "lf" => "LF", "cr" => "CR"], $values["lfCode"]);
 $values["dataView"] = ViewUtil::renderDataTableView("data", $values);
 $view = ViewUtil::getView("index");
 echo ViewUtil::render($view, $values);
