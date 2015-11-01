@@ -1,11 +1,21 @@
 <?php
 class ViewUtil {
-    const TABLE_ADD_BTN_VIEW  = <<<EOL
+    const TABLE_ADD_BTN_VIEW = <<<EOL
 <td><input type="submit" name="#####name#####" value="+"></td>
 EOL;
 
-   const TABLE_INPUT_TEXT_VIEW = <<<EOL
+    const TABLE_INPUT_TEXT_VIEW = <<<EOL
 <td><input type="text" name="#####name#####" value="#####rowValue#####"></td>
+EOL;
+  
+    const SELECT_LIST_VIEW = <<<EOL
+<select name="fileType">
+#####option#####
+</select>
+EOL;
+
+    const SELECT_OPTION_VIEW = <<<EOL
+<option value="#####value#####">#####option#####</option>
 EOL;
 
     public static function getView($fileName) {
@@ -48,4 +58,13 @@ EOL;
 	}
         return $renderView;
     }
+
+    public static function renderSelectList($selectName, $options) {
+        $optionView = "";
+	foreach ($options as $value => $option) {
+            $values = ["value" => $value, "option" => $option];
+            $optionView .= self::render(self::SELECT_OPTION_VIEW, $values);
+	}
+        return self::render(self::SELECT_LIST_VIEW, ["name" => $selectName, "option" => $optionView]);
+   }
 }
