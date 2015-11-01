@@ -53,7 +53,7 @@ if (isset($_POST["download"])) {
 
 require_once('util/ViewUtil.php');
 $values["pageTitle"] = "CSV/TSV形式編集ツール（Web版）";
-$values["selectFileType"] = ViewUtil::renderSelectList("fileType", ["csv" => "CSV", "tsv" => "TSV"]);
+$values["selectFileType"] = ViewUtil::renderSelectList("fileType", ["csv" => "CSV", "tsv" => "TSV"], $values["fileType"]);
 $values["dataView"] = ViewUtil::renderDataTableView("data", $values);
 $view = ViewUtil::getView("index");
 echo ViewUtil::render($view, $values);

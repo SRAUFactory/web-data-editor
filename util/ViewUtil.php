@@ -15,7 +15,7 @@ EOL;
 EOL;
 
     const SELECT_OPTION_VIEW = <<<EOL
-<option value="#####value#####">#####option#####</option>
+<option value="#####value#####" #####selected#####>#####option#####</option>
 EOL;
 
     public static function getView($fileName) {
@@ -59,10 +59,11 @@ EOL;
         return $renderView;
     }
 
-    public static function renderSelectList($selectName, $options) {
+    public static function renderSelectList($selectName, $options, $selected) {
         $optionView = "";
 	foreach ($options as $value => $option) {
-            $values = ["value" => $value, "option" => $option];
+	    $values = ["value" => $value, "option" => $option];
+            $values["selected"] = ($value === $selected)? "selected" : "";
             $optionView .= self::render(self::SELECT_OPTION_VIEW, $values);
 	}
         return self::render(self::SELECT_LIST_VIEW, ["name" => $selectName, "option" => $optionView]);
