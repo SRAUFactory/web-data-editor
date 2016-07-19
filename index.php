@@ -48,7 +48,7 @@ if (isset($_POST["download"])) {
     }
 }
 
-require_once('util/ViewUtil.php');
+require_once('src/ViewUtil.php');
 $values["pageTitle"] = "CSV/TSV形式編集ツール（Web版）";
 $values["selectFileType"] = ViewUtil::renderSelectList("fileType", ["csv" => "CSV", "tsv" => "TSV"], $values["fileType"]);
 $values["selectLfCode"] = ViewUtil::renderSelectList("lfCode", ["crlf" => "CR+LF", "lf" => "LF", "cr" => "CR"], $values["lfCode"]);
