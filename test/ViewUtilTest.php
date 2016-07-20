@@ -36,9 +36,7 @@ EOF;
     
     function testRenderSelectList() {
         $expected = <<<EOF
-<select name=fileType>
-<option value="csv" selected>CSV</option><option value="tsv" >TSV</option>
-</select>
+<select name=fileType><option value="csv" selected>CSV</option><option value="tsv">TSV</option></select>
 EOF;
         $selectList = ViewUtil::renderSelectList("fileType", ["csv" => "CSV", "tsv" => "TSV"], "csv");
         $this->assertSame($expected, $selectList);

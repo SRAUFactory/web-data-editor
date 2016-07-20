@@ -9,13 +9,11 @@ EOL;
 EOL;
   
     const SELECT_LIST_VIEW = <<<EOL
-<select name=#####name#####>
-#####option#####
-</select>
+<select name=#####name#####>#####option#####</select>
 EOL;
 
     const SELECT_OPTION_VIEW = <<<EOL
-<option value="#####value#####" #####selected#####>#####option#####</option>
+<option value="#####value#####"#####selected#####>#####option#####</option>
 EOL;
 
     public static function getView($fileName) {
@@ -63,7 +61,7 @@ EOL;
         $optionView = "";
 	foreach ($options as $value => $option) {
 	    $values = ["value" => $value, "option" => $option];
-            $values["selected"] = ($value === $selected)? "selected" : "";
+            $values["selected"] = ($value === $selected)? " selected" : "";
             $optionView .= self::render(self::SELECT_OPTION_VIEW, $values);
 	}
         return self::render(self::SELECT_LIST_VIEW, ["name" => $selectName, "option" => $optionView]);
