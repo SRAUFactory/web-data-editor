@@ -17,7 +17,7 @@ EOL;
 EOL;
 
     public static function getView($fileName) {
-	return file_get_contents("templete/" . $fileName . ".html");
+	return file_get_contents("template/" . $fileName . ".html");
     }
 
     public static function assign($view, $key, $value) {
