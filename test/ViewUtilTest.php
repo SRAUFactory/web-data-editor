@@ -33,11 +33,17 @@ EOF;
 	$view = ViewUtil::getView("index");
         $this->assertSame($expected, $view);
     }
-    /*
+    
     function testRenderSelectList() {
-        
+        $expected = <<<EOF
+<select name=fileType>
+<option value="csv" selected>CSV</option><option value="tsv" >TSV</option>
+</select>
+EOF;
+        $selectList = ViewUtil::renderSelectList("fileType", ["csv" => "CSV", "tsv" => "TSV"], "csv");
+        $this->assertSame($expected, $selectList);
     }
     
-    function testRenderDataTableView() {
+    /*function testRenderDataTableView() {
     }*/
 }
