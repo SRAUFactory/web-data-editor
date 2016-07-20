@@ -26,6 +26,9 @@ EOL;
 
     public static function render($view, $values) {
 	foreach ($values as $key => $value) {
+	    if (is_array($value)) {
+                continue;
+            }
 	    $view = self::assign($view, $key, $value);
 	}
         return $view;
@@ -51,7 +54,7 @@ EOL;
                 }
                 $dataTable .= "</tr>";
             }
-            $values["dataTable"] = $dataTable;
+	    $values["dataTable"] = $dataTable;
             $renderView = self::render($dataView, $values);
 	}
         return $renderView;
