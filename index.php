@@ -1,58 +1,13 @@
 <?php
-require_once('classes/WDEConst.php');
-$values = ["fileType" => WDEConst::FILE_TYPE_CSV , "lfCode" => WDEConst::LF_CODE_LF];
+require('classes/WDEController.php');
+$controller = new WDEController();
 if (isset($_POST["download"])) {
-    $values = $_POST;
-    header('Content-Type: text/'. $values["fileType"]);
-    header('Content-disposition: attachment; filename="'.$values["fileName"]. "." . $values["fileType"]. '"');
-    foreach ($values["data"] as $row => $rowData) {
-    	$rowValue = implode(WDEConst::$COLUMNS_SEPARETOR[$values["fileType"]], $rowData);
-    	echo $rowValue . "\n";
-    }
-    return;
+    $result = $controller->download();
 } elseif (isset($_POST["addRow"]) || isset($_POST["addCol"])) {
-    $values = $_POST;
-    $tempTsvData = $values["data"];
-    $addRow = 0;
-    foreach ($tempTsvData as $row => $rowData) {
-    	if (isset($values["addRow"][$row][0])) {
-    		$addRow++;
-    		$addRowData = [];
-    		foreach ($rowData as $col => $rowValue) {
-    			$addRowData[] = "";
-    		}
-		$values["data"][$row] = $addRowData;
-    	}
-    	$addCol = 0;
-    	foreach ($rowData as $col => $rowValue) {
-    		if (isset($values["addCol"][0][$col])) {
-    			$values["data"][$row + $addRow][$col] = "";
-    			$addCol++;
-    		}
-    		$values["data"][$row + $addRow][$col + $addCol] = $rowValue;
-    	}
-    }
+    $result = $controller->addRowCol();
 } elseif (isset($_FILES["uploadFile"])) {
-    $values = $_POST;
-    $values["fileName"] = str_replace("." . $values["fileType"], "", $_FILES["uploadFile"]["name"]);
-    $values["data"] = [];
-    $tsvFileData = file_get_contents($_FILES["uploadFile"]["tmp_name"]);
-    $tempTsvData = explode("\n", $tsvFileData);
-    $separater = WDEConst::$COLUMNS_SEPARETOR[$values["fileType"]];
-    foreach ($tempTsvData as $row => $rowData) {
-    	$rowValues = explode($separater, $rowData);
-    	if (count($rowValues) <= 1) {
-    		continue;
-    	}
-    	$values["data"][] = $rowValues;
-    }
+    $result = $controller->upload();
+} else {
+    $result = $controller->index();
 }
-
-require_once('classes/WDEView.php');
-$values["pageTitle"] = "CSV/TSV形式編集ツール（Web版）";
-$values["selectFileType"] = WDEView::renderSelectList("fileType", WDEConst::$SELECT_FILE_TYPE, $values["fileType"]);
-$values["selectLfCode"] = WDEView::renderSelectList("lfCode", WDEConst::$SELECT_LF_CODE, $values["lfCode"]);
-$values["dataView"] = WDEView::renderDataTableView("data", $values);
-$view = WDEView::getView("index");
-echo WDEView::render($view, $values);
-?>
+echo $result;
