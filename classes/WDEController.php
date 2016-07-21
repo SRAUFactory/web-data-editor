@@ -15,14 +15,19 @@ class WDEController {
 
     /**
      * ファイルダウンロード処理
+     * @return array "header" => ヘッダー情報一覧 "body" => レスポンスボディ
      */
     public function download() {
-        $values = $_POST;
-        header('Content-Type: text/'. $values["fileType"]);
-	header('Content-disposition: attachment; filename="'.$values["fileName"]. "." . $values["fileType"]. '"');
-        $result = "";
+	$values = $_POST;
+	$result = [
+            "header" => [
+                'Content-Type: text/'. $values["fileType"],
+                'Content-disposition: attachment; filename="'.$values["fileName"]. "." . $values["fileType"]. '"',
+            ],
+            "body" => "",
+        ];
         foreach ($values["data"] as $row => $rowData) {
-            $result .= implode(WDEConst::$COLUMNS_SEPARETOR[$values["fileType"]], $rowData) . "\n";
+            $result["body"] .= implode(WDEConst::$COLUMNS_SEPARETOR[$values["fileType"]], $rowData) . "\n";
 	}
         return $result;
     }
