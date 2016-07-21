@@ -1,5 +1,5 @@
 <?php
-require(dirname(__FILE__) . '/../src/ViewUtil.php');
+require(dirname(__FILE__) . '/../classes/ViewUtil.php');
 /**
  * ViewUtilクラスのテスト
  */
