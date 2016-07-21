@@ -9,7 +9,7 @@ class WDEController {
      * インデックス
      */
     public function index() {
-        $values = ["fileType" => WDEConst::FILE_TYPE_CSV , "lfCode" => WDEConst::LF_CODE_LF];
+        $values = ["fileType" => WDEConst::FILE_TYPE_CSV , "lfCode" => WDEConst::LF_CODE_LF, "data" => []];
         return $this->renderIndexView($values);
     }
 

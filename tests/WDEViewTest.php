@@ -72,8 +72,8 @@ EOF;
            [["data" => []], ""],
 	   [
 	       [
-                   "fileType" => "csv",
-		   "lfCode" => "lf",
+		   "fileType" => WDEConst::FILE_TYPE_CSV,
+                   "lfCode" => WDEConst::LF_CODE_LF,
                    "fileName" => "sample",
                    "data" => [
                        ["header1", "header2", "header3", "header4"],
