@@ -48,11 +48,11 @@ if (isset($_POST["download"])) {
     }
 }
 
-require_once('classes/ViewUtil.php');
+require_once('classes/WDEView.php');
 $values["pageTitle"] = "CSV/TSV形式編集ツール（Web版）";
-$values["selectFileType"] = ViewUtil::renderSelectList("fileType", WDEConst::$SELECT_FILE_TYPE, $values["fileType"]);
-$values["selectLfCode"] = ViewUtil::renderSelectList("lfCode", WDEConst::$SELECT_LF_CODE, $values["lfCode"]);
-$values["dataView"] = ViewUtil::renderDataTableView("data", $values);
-$view = ViewUtil::getView("index");
-echo ViewUtil::render($view, $values);
+$values["selectFileType"] = WDEView::renderSelectList("fileType", WDEConst::$SELECT_FILE_TYPE, $values["fileType"]);
+$values["selectLfCode"] = WDEView::renderSelectList("lfCode", WDEConst::$SELECT_LF_CODE, $values["lfCode"]);
+$values["dataView"] = WDEView::renderDataTableView("data", $values);
+$view = WDEView::getView("index");
+echo WDEView::render($view, $values);
 ?>

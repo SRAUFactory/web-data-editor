@@ -15,11 +15,11 @@ class WDEConst {
     /**
      * 改行コード（LR）
      */ 
-    const LF_CODE_LF   = "lr";
+    const LF_CODE_LF   = "lf";
     /**
      * 改行コード（CR）
      */ 
-    const LF_CODE_CR   = "CR";
+    const LF_CODE_CR   = "cr";
 
     /**
      * ファイルタイプ別カラムの区切り文字一覧

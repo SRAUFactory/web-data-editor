@@ -1,5 +1,5 @@
 <?php
-class ViewUtil {
+class WDEView {
     const TABLE_ADD_BTN_VIEW = <<<EOL
 <td><input type="submit" name="#####name#####" value="+"></td>
 EOL;
@@ -37,7 +37,7 @@ EOL;
     public static function renderDataTableView($fileName, $values) {
 	$renderView = "";
         if (count($values["data"]) > 0) {
-            $dataView = ViewUtil::getView($fileName);
+            $dataView = self::getView($fileName);
             $values["header"] = "";
             foreach ($values["data"][0] as $col => $rowValue) {
                 $values["header"] .= self::assign(self::TABLE_ADD_BTN_VIEW, "name", "addCol[0][{$col}]");

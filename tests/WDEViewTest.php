@@ -1,9 +1,10 @@
 <?php
-require(dirname(__FILE__) . '/../classes/ViewUtil.php');
+require(dirname(__FILE__) . '/../classes/WDEView.php');
+require(dirname(__FILE__) . '/../classes/WDEConst.php');
 /**
- * ViewUtilクラスのテスト
+ * WDEViewクラスのテスト
  */
-class ViewUtilTest extends PHPUnit_Framework_TestCase {
+class WDEViewTest extends PHPUnit_Framework_TestCase {
     function testGetView() {
 	$expected = <<<EOF
 <!DOCTYPE html>
@@ -30,7 +31,7 @@ class ViewUtilTest extends PHPUnit_Framework_TestCase {
 </html>
 
 EOF;
-	$view = ViewUtil::getView("index");
+	$view = WDEView::getView("index");
         $this->assertSame($expected, $view);
     }
     
@@ -38,7 +39,7 @@ EOF;
         $expected = <<<EOF
 <select name=fileType><option value="csv" selected>CSV</option><option value="tsv">TSV</option></select>
 EOF;
-        $selectList = ViewUtil::renderSelectList("fileType", ["csv" => "CSV", "tsv" => "TSV"], "csv");
+        $selectList = WDEView::renderSelectList("fileType", WDEConst::$SELECT_FILE_TYPE, WDEConst::FILE_TYPE_CSV);
         $this->assertSame($expected, $selectList);
     }
 
@@ -48,7 +49,7 @@ EOF;
      * @param $expected string 期待値 
      */
     function testRenderDataTableView($values, $expected) { 
-	$dataTableView = ViewUtil::renderDataTableView("data", $values);
+	$dataTableView = WDEView::renderDataTableView("data", $values);
         $this->assertSame($expected, $dataTableView);
     }
 
