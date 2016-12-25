@@ -8,7 +8,7 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                lf   : "\n",
                cr   : "\r"
            }
-           $scope.info = {};
+           $scope.list = {};
 
            $scope.download = function() {
                console.log("WebDataEditor.download");
@@ -20,14 +20,11 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                }
                var reader = new FileReader();
                reader.onload = function() {
-                   $scope.$apply(function() {
-                       var separator = columnSeparetor[$scope.fileType];
-                       var lfCode = lfCodeList[$scope.lfCode];
-                       var temp = reader.result.split(lfCode);
-                       temp.forEach(function(row, index) {
-                           var cols = row.split(separator);
-                           $scope.info[index] = cols;
-                       });
+                   var separator = columnSeparetor[$scope.fileType];
+                   var lfCode = lfCodeList[$scope.lfCode];
+                   var temp = reader.result.split(lfCode);
+                   temp.forEach(function(row, index) {
+                       $scope.list[index] = row.split(separator);
                    });
                };
                reader.readAsText(file);
