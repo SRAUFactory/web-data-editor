@@ -1,16 +1,25 @@
 angular.module('WebDataEditor', []).controller('EditorController', function($scope) {
-           $scope.upload = function() {
-               console.log("WebDataEditor.upload1234");
-               console.log($scope.file);
-           };
-
            $scope.addRowCol = function() {
            };
 
            $scope.download = function() {
                console.log("WebDataEditor.download");
-           }
-       }).directive('fileModel',function($parse) {
+           };
+
+           $scope.$watch("file", function(file) {
+               if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
+                   return;
+               }
+               console.log(file);
+               var reader = new FileReader();
+               reader.onload = function() {
+                   $scope.$apply(function() {
+                       console.log(reader.result);
+                   });
+               };
+               reader.readAsText(file);
+           });
+       }).directive('fileModel', function($parse) {
            return{
                restrict: 'A',
                link: function(scope,element,attrs) {
