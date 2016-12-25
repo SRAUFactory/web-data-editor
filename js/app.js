@@ -1,6 +1,14 @@
 angular.module('WebDataEditor', []).controller('EditorController', function($scope) {
-           $scope.addRowCol = function() {
+           var columnSeparetor = {
+               csv : ',',
+               tsv : '\t'
            };
+           var lfCodeList = {
+               crlf : "\r\n",
+               lf   : "\n",
+               cr   : "\r"
+           }
+           $scope.info = {};
 
            $scope.download = function() {
                console.log("WebDataEditor.download");
@@ -10,11 +18,16 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
                    return;
                }
-               console.log(file);
                var reader = new FileReader();
                reader.onload = function() {
                    $scope.$apply(function() {
-                       console.log(reader.result);
+                       var separator = columnSeparetor[$scope.fileType];
+                       var lfCode = lfCodeList[$scope.lfCode];
+                       var temp = reader.result.split(lfCode);
+                       temp.forEach(function(row, index) {
+                           var cols = row.split(separator);
+                           $scope.info[index] = cols;
+                       });
                    });
                };
                reader.readAsText(file);
