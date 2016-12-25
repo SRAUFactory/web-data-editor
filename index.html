@@ -4,16 +4,13 @@
         <meta charset="utf-8">
         <meta name="description" content="">
         <title>CSV/TSV形式編集ツール（Web版）</title>
-        <meta http-equiv="Cache-Control" content="no-cache, no-store, post-check=0, pre-check=0">
-        <meta http-equiv="Pragma" content="no-cache">
-        <meta http-equiv="Expires" content="Thu, 01 Dec 1994 16:00:00 GMT">
     </head>
     <body>
         <div ng-controller="EditorController">
             <h1>CSV/TSV形式編集ツール（Web版）</h1>
             <h2>編集対象のCSV/TSVファイルを読み込んでください</h2>
             <form enctype="multipart/form-data">
-                <div class="form-group">
+                <div class="form-group modal-content">
                     <div>
                         ファイル形式:
                         <select name="fileType" class="form-control">
@@ -29,7 +26,8 @@
                             <option value="cr">CR</option>
                         </select>
                     </div>
-                    <input type="file" name="uploadFile" class="form-control">
+                    <input type="file" name="uploadFile" class="form-control" file-model="file">
+                    <button ng-click="upload()">読込</button>
                     <button ng-click="download()">保存</button>
                 </div>
             </form>
