@@ -29,8 +29,8 @@
                     <input type="file" name="uploadFile" class="form-control" file-model="file">
                     <button ng-click="download()">保存</button>
                     <table>
-                        <tr ng-repeat="rows in list track by $row">
-                            <td  ng-repeat="value in rows track by $col">
+                        <tr ng-repeat="rows in list">
+                            <td  ng-repeat="value in rows">
                                 <input type="text" class="form-control" ng-model="value">
                             </td>
                         </tr>

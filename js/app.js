@@ -1,3 +1,4 @@
+'use strict';
 angular.module('WebDataEditor', []).controller('EditorController', function($scope) {
            var columnSeparetor = {
                csv : ',',
@@ -8,7 +9,7 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                lf   : "\n",
                cr   : "\r"
            }
-           $scope.list = {};
+           $scope.list = [];
 
            $scope.download = function() {
                console.log("WebDataEditor.download");
@@ -20,11 +21,15 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                }
                var reader = new FileReader();
                reader.onload = function() {
-                   var separator = columnSeparetor[$scope.fileType];
-                   var lfCode = lfCodeList[$scope.lfCode];
-                   var temp = reader.result.split(lfCode);
-                   temp.forEach(function(row, index) {
-                       $scope.list[index] = row.split(separator);
+                   $scope.$apply(function(){
+                       var separator = columnSeparetor[$scope.fileType];
+                       var lfCode = lfCodeList[$scope.lfCode];
+                       var temp = reader.result.split(lfCode);
+                       temp.forEach(function(row, index) {
+                           var rows = row.split(separator);
+                           $scope.list[index] = rows;
+                       });
+                       $scope.list.pop();
                    });
                };
                reader.readAsText(file);
@@ -36,7 +41,6 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                    var model = $parse(attrs.fileModel);
                    element.bind('change',function() {
                        scope.$apply(function() {
-
                            model.assign(scope,element[0].files[0]);
                        });
                    });
