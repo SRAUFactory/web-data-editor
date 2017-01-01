@@ -10,6 +10,7 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                cr   : "\r"
            }
            $scope.list = [];
+           $scope.show = false;
 
            $scope.download = function() {
                console.log("WebDataEditor.download");
@@ -30,6 +31,7 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                            $scope.list[index] = rows;
                        });
                        $scope.list.pop();
+                       $scope.show = ($scope.list.length > 0)? true : false;
                    });
                };
                reader.readAsText(file);
