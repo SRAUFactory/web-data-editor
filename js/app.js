@@ -11,6 +11,8 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
            }
            $scope.list = [];
            $scope.show = false;
+           $scope.fileType = "csv";
+           $scope.lfCode = "lf";
 
            $scope.download = function() {
                console.log("WebDataEditor.download");
