@@ -29,9 +29,27 @@
                     <input type="file" name="uploadFile" class="form-control" file-model="file">
                     <button ng-click="download()" ng-show="show">保存</button>
                     <table>
+                        <tr>
+                            <td></td>
+                            <td ng-repeat="row in list[0]">
+                                <button>+</button>
+                                <button>-</button>
+                            </td>
+                        </tr>
                         <tr ng-repeat="rows in list">
+                            <td>
+                                <button>+</button>
+                                <button>-</button>
+                            </td>
                             <td ng-repeat="value in rows">
                                 <input type="text" class="form-control" ng-model="value">
+                            </td>
+                        </tr>
+                        <tr ng-show="list.length > 0">
+                            <td>
+                                <button>+</button>
+                            </td>
+                            <td ng-repeat="row in list[0]">
                             </td>
                         </tr>
                     </table>
