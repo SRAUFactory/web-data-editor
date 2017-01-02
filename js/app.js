@@ -16,6 +16,7 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
 
            $scope.download = function() {
                console.log("WebDataEditor.download");
+               console.log($scope);
            };
 
            $scope.$watch("file", function(file) {
