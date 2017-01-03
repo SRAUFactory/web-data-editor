@@ -36,18 +36,18 @@
                                 <button>-</button>
                             </td>
                         </tr>
-                        <tr ng-repeat="(row, rows) in list">
+                        <tr ng-repeat="(row, rows) in list track by $index">
                             <td>
-                                <button>+</button>
+                                <button ng-click="addRow($index)">+</button>
                                 <button>-</button>
                             </td>
-                            <td ng-repeat="(col, value) in rows">
+                            <td ng-repeat="(col, value) in rows track by $index">
                                 <input type="text" class="form-control" ng-model="list[row][col]">
                             </td>
                         </tr>
                         <tr ng-show="list.length > 0">
                             <td>
-                                <button>+</button>
+                                <button ng-click="addRow(list.length)">+</button>
                             </td>
                             <td ng-repeat="row in list[0]">
                             </td>

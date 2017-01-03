@@ -19,6 +19,14 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                console.log($scope);
            };
 
+           $scope.addRow = function(row) {
+               let temp = [];
+               $scope.list[0].forEach(function(row, index) {
+                   temp[index] = '';
+               });
+               $scope.list.splice(row, 0, temp);
+           };
+
            $scope.$watch("file", function(file) {
                if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
                    return;
