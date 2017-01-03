@@ -29,11 +29,14 @@
                     <input type="file" name="uploadFile" class="form-control" file-model="file">
                     <button ng-click="download()" ng-show="show">保存</button>
                     <table>
-                        <tr>
+                        <tr ng-show="list.length > 0">
                             <td></td>
-                            <td ng-repeat="row in list[0] track by $index">
-                                <button>+</button>
+                            <td ng-repeat="(col, value) in list[0] track by $index">
+                                <button ng-click="addCol($index)">+</button>
                                 <button>-</button>
+                            </td>
+                            <td>
+                                <button ng-click="addCol(list[0].length)">+</button>
                             </td>
                         </tr>
                         <tr ng-repeat="(row, rows) in list track by $index">
@@ -44,6 +47,7 @@
                             <td ng-repeat="(col, value) in rows track by $index">
                                 <input type="text" class="form-control" ng-model="list[row][col]">
                             </td>
+                            <td></td>
                         </tr>
                         <tr ng-show="list.length > 0">
                             <td>
@@ -51,6 +55,7 @@
                             </td>
                             <td ng-repeat="row in list[0] track by $index">
                             </td>
+                            <td></td>
                         </tr>
                     </table>
                 </div>
