@@ -1,10 +1,10 @@
 'use strict';
 angular.module('WebDataEditor', []).controller('EditorController', function($scope) {
-           var columnSeparetor = {
+           const columnSeparetor = {
                csv : ',',
                tsv : '\t'
            };
-           var lfCodeList = {
+           const lfCodeList = {
                crlf : "\r\n",
                lf   : "\n",
                cr   : "\r"
@@ -23,14 +23,14 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
                    return;
                }
-               var reader = new FileReader();
+               let reader = new FileReader();
                reader.onload = function() {
                    $scope.$apply(function(){
-                       var separator = columnSeparetor[$scope.fileType];
-                       var lfCode = lfCodeList[$scope.lfCode];
-                       var temp = reader.result.split(lfCode);
+                       let separator = columnSeparetor[$scope.fileType];
+                       let lfCode = lfCodeList[$scope.lfCode];
+                       let temp = reader.result.split(lfCode);
                        temp.forEach(function(row, index) {
-                           var rows = row.split(separator);
+                           let rows = row.split(separator);
                            $scope.list[index] = rows;
                        });
                        $scope.list.pop();
@@ -43,7 +43,7 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
            return{
                restrict: 'A',
                link: function(scope,element,attrs) {
-                   var model = $parse(attrs.fileModel);
+                   let model = $parse(attrs.fileModel);
                    element.bind('change',function() {
                        scope.$apply(function() {
                            model.assign(scope,element[0].files[0]);
