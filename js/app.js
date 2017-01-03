@@ -27,11 +27,22 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                $scope.list.splice(row, 0, temp);
            };
 
+           $scope.delRow = function(row) {
+               $scope.list.splice(row, 1);
+           };
+
            $scope.addCol = function(col) {
                $scope.list.forEach(function(cols, index) {
                    cols.splice(col, 0, '');
                });
+           };
+
+           $scope.delCol = function(col) {
+               $scope.list.forEach(function(cols, index) {
+                   cols.splice(col, 1);
+               });
            }
+
 
            $scope.$watch("file", function(file) {
                if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {

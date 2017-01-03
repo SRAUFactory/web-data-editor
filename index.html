@@ -33,7 +33,7 @@
                             <td></td>
                             <td ng-repeat="(col, value) in list[0] track by $index">
                                 <button ng-click="addCol($index)">+</button>
-                                <button>-</button>
+                                <button ng-click="delCol($index)">-</button>
                             </td>
                             <td>
                                 <button ng-click="addCol(list[0].length)">+</button>
@@ -42,7 +42,7 @@
                         <tr ng-repeat="(row, rows) in list track by $index">
                             <td>
                                 <button ng-click="addRow($index)">+</button>
-                                <button>-</button>
+                                <button ng-click="delRow($index)">-</button>
                             </td>
                             <td ng-repeat="(col, value) in rows track by $index">
                                 <input type="text" class="form-control" ng-model="list[row][col]">
