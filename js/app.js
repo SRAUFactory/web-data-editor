@@ -48,6 +48,7 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
                    return;
                }
+               $scope.list = [];
                let reader = new FileReader();
                reader.onload = function() {
                    $scope.$apply(function(){
