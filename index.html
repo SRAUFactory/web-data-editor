@@ -27,7 +27,7 @@
                         </select>
                     </div>
                     <input type="file" name="uploadFile" class="form-control" file-model="file">
-                    <button ng-click="download()" ng-show="show">保存</button>
+                    <a id="download" href="#" download="test.csv" ng-click="download()" ng-show="show">保存</a>
                     <table>
                         <tr ng-show="list.length > 0">
                             <td></td>

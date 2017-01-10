@@ -15,8 +15,18 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
            $scope.lfCode = "lf";
 
            $scope.download = function() {
-               console.log("WebDataEditor.download");
-               console.log($scope);
+               let temp = []
+               let separator = columnSeparetor[$scope.fileType];
+               let lfCode = lfCodeList[$scope.lfCode];
+               $scope.list.forEach(function(cols, index) {
+                   temp[index] = cols.join(separator);
+               });
+               let contents = temp.join(lfCode);
+               let bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+               let blob = new Blob([bom, contents], { type: "text/plain" });
+               let link = document.getElementById("download");
+               link.download = $scope.file.name;
+               link.href = window.URL.createObjectURL(blob);
            };
 
            $scope.addRow = function(row) {
@@ -42,7 +52,6 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                    cols.splice(col, 1);
                });
            }
-
 
            $scope.$watch("file", function(file) {
                if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
