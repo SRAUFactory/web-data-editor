@@ -15,7 +15,7 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
            $scope.lfCode = "lf";
 
            $scope.download = function() {
-               let temp = []
+               let temp = [];
                let separator = columnSeparetor[$scope.fileType];
                let lfCode = lfCodeList[$scope.lfCode];
                $scope.list.forEach(function(cols, index) {
@@ -68,7 +68,9 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                            let rows = row.split(separator);
                            $scope.list[index] = rows;
                        });
-                       $scope.list.pop();
+                       if ($scope.list[0].length !== $scope.list[$scope.list.length -1].length) {
+                           $scope.list.pop();
+                       }
                        $scope.show = ($scope.list.length > 0)? true : false;
                    });
                };
