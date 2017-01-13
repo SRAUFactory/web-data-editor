@@ -1,3 +1,0 @@
-<Files ~ "^(*\.js)$">
-  Deny from all
- </Files>
