@@ -4,6 +4,7 @@
         <meta charset="utf-8">
         <meta name="description" content="">
         <title>CSV/TSV形式編集ツール（Web版）</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
     </head>
     <body>
         <div ng-controller="EditorController">
@@ -28,33 +29,33 @@
                     </div>
                     <input type="file" name="uploadFile" class="form-control" file-model="file">
                     <a id="download" href="#" download="test.csv" ng-click="download()" ng-show="show">保存</a>
-                    <table>
+                    <table class="table table-striped">
                         <tr ng-show="list.length > 0">
-                            <td></td>
-                            <td ng-repeat="(col, value) in list[0] track by $index">
+                            <th></th>
+                            <th ng-repeat="(col, value) in list[0] track by $index">
                                 {{$index + 1}}
                                 <button ng-click="addCol($index)">+</button>
                                 <button ng-click="delCol($index)">-</button>
-                            </td>
-                            <td>
+                            </th>
+                            <th>
                                 <button ng-click="addCol(list[0].length)">+</button>
-                            </td>
+                            </th>
                         </tr>
                         <tr ng-repeat="(row, rows) in list track by $index">
-                            <td>
+                            <th>
                                 <button ng-click="addRow($index)">+</button>
                                 <button ng-click="delRow($index)">-</button>
                                 {{$index + 1}}
-                            </td>
+                            </th>
                             <td ng-repeat="(col, value) in rows track by $index">
                                 <input type="text" class="form-control" ng-model="list[row][col]">
                             </td>
                             <td></td>
                         </tr>
                         <tr ng-show="list.length > 0">
-                            <td>
+                            <th>
                                 <button ng-click="addRow(list.length)">+</button>
-                            </td>
+                            </th>
                             <td ng-repeat="row in list[0] track by $index">
                             </td>
                             <td></td>
@@ -64,6 +65,7 @@
             </form>
         </div>
         <script src="./js/angular.min.js"></script>
+        <script src="./bootstrap.min.js"></script>
         <script src="./js/app.js"></script>
     </body>
 </html>
