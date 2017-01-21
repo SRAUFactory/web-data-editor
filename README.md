@@ -5,9 +5,9 @@ Currently it is only for editing, but we plan to add new file creation and other
 
 ## feature
 * Editing csv/tsv file
-** Add/Delete row and column
-** Change to the value
-** Convert to data form
+  * Add/Delete row and column
+  * Change to the value
+  * Convert to data form
 * Save and download edited csv/tsv data
 * Create new csv/tsv data(In the future)
 
