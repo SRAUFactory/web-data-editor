@@ -4,66 +4,91 @@
         <meta charset="utf-8">
         <meta name="description" content="">
         <title>CSV/TSV形式編集ツール（Web版）</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/dashboard.css" rel="stylesheet">
     </head>
-    <body>
-        <div ng-controller="EditorController">
-            <h1>CSV/TSV形式編集ツール（Web版）</h1>
-            <h2>編集対象のCSV/TSVファイルを読み込んでください</h2>
-            <form enctype="multipart/form-data">
-                <div class="form-group modal-content">
-                    <div>
-                        ファイル形式:
-                        <select name="fileType" class="form-control" ng-model="fileType">
-                            <option value="csv">CSV</option>
-                            <option value="tsv">TSV</option>
-                        </select>
-                    </div>
-                    <div>
-                        改行コード：
-                        <select name="lfCode" class="form-control" ng-model="lfCode">
-                            <option value="crlf">CR+LF</option>
-                            <option value="lf">LF</option>
-                            <option value="cr">CR</option>
-                        </select>
-                    </div>
-                    <input type="file" name="uploadFile" class="form-control" file-model="file">
-                    <a id="download" href="#" download="test.csv" ng-click="download()" ng-show="show">保存</a>
-                    <table>
-                        <tr ng-show="list.length > 0">
-                            <td></td>
-                            <td ng-repeat="(col, value) in list[0] track by $index">
-                                {{$index + 1}}
-                                <button ng-click="addCol($index)">+</button>
-                                <button ng-click="delCol($index)">-</button>
-                            </td>
-                            <td>
-                                <button ng-click="addCol(list[0].length)">+</button>
-                            </td>
-                        </tr>
-                        <tr ng-repeat="(row, rows) in list track by $index">
-                            <td>
-                                <button ng-click="addRow($index)">+</button>
-                                <button ng-click="delRow($index)">-</button>
-                                {{$index + 1}}
-                            </td>
-                            <td ng-repeat="(col, value) in rows track by $index">
-                                <input type="text" class="form-control" ng-model="list[row][col]">
-                            </td>
-                            <td></td>
-                        </tr>
-                        <tr ng-show="list.length > 0">
-                            <td>
-                                <button ng-click="addRow(list.length)">+</button>
-                            </td>
-                            <td ng-repeat="row in list[0] track by $index">
-                            </td>
-                            <td></td>
-                        </tr>
-                    </table>
-                </div>
-            </form>
+    <body ng-controller="EditorController">
+        <nav class="navbar navbar-toggleable-md navbar-inverse fixed-top bg-inverse">
+            <button class="navbar-toggler navbar-toggler-right hidden-lg-up" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="#">CSV/TSV形式編集ツール</a>
+        </nav>          
+        <div class="container-fluid">
+            <div class="row">
+                <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
+                    <ul class="nav nav-pills flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">新規作成</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">ファイルを開く</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="download" href="#" download="test.csv" ng-click="download()" ng-show="show">保存</a>
+                        </li>
+                    </ul>
+                </nav>
+                <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2">
+                    <h1>Dashboard</h1>
+                    <form enctype="multipart/form-data">
+                        <div class="form-group modal-content">
+                            <div>
+                                ファイル形式:
+                                <select name="fileType" class="form-control" ng-model="fileType">
+                                    <option value="csv">CSV</option>
+                                    <option value="tsv">TSV</option>
+                                </select>
+                            </div>
+                            <div>
+                                改行コード：
+                                <select name="lfCode" class="form-control" ng-model="lfCode">
+                                    <option value="crlf">CR+LF</option>
+                                    <option value="lf">LF</option>
+                                    <option value="cr">CR</option>
+                                </select>
+                            </div>
+                            <input type="file" name="uploadFile" class="form-control" file-model="file">
+                            <table class="table table-striped">
+                                <tr ng-show="list.length > 0">
+                                    <th></th>
+                                    <th ng-repeat="(col, value) in list[0] track by $index">
+                                        {{$index + 1}}
+                                        <button ng-click="addCol($index)">+</button>
+                                        <button ng-click="delCol($index)">-</button>
+                                    </th>
+                                    <th>
+                                        <button ng-click="addCol(list[0].length)">+</button>
+                                    </th>
+                                </tr>
+                                <tr ng-repeat="(row, rows) in list track by $index">
+                                    <th>
+                                        <button ng-click="addRow($index)">+</button>
+                                        <button ng-click="delRow($index)">-</button>
+                                        {{$index + 1}}
+                                    </th>
+                                    <td ng-repeat="(col, value) in rows track by $index">
+                                        <input type="text" class="form-control" ng-model="list[row][col]">
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr ng-show="list.length > 0">
+                                    <th>
+                                        <button ng-click="addRow(list.length)">+</button>
+                                    </th>
+                                    <td ng-repeat="row in list[0] track by $index">
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </form>
+                </main>
+            </div>
         </div>
-        <script src="./js/angular.min.js"></script>
-        <script src="./js/app.js"></script>
+
+        <script src="js/angular.min.js"></script>
+        <!-- script src="js/bootstrap.min.js"></script> -->
+        <script src="js/app.js"></script>
     </body>
 </html>
