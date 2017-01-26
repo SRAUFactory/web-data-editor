@@ -15,10 +15,14 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            $scope.lfCode = "lf";
 
            $scope.open = function() {
-               $uibModal.open({
-                   template: '<div class="md">{{message}}</div>',
+               var modalInstance = $uibModal.open({
+                   template:'<div class="md"><button class="btn btn-primary" ng-click="ok()">ok</button><button class="btn btn-warning" ng-click="cancel()">cancel</button></div>',
                    controller: 'ModalCtrl',
-                   backdrop:true
+               });
+               modalInstance.result.then(function() {
+                   $scope.message = 'closeが実行されました。';
+               }, function() {
+                   $scope.message = 'dismissが実行されました。';
                });
            };
            $scope.download = function() {
@@ -83,8 +87,13 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                };
                reader.readAsText(file);
            });
-       }]).controller('ModalCtrl', ['$scope', function($scope) {
-          $scope.message = 'メッセージ'; 
+       }]).controller('ModalCtrl', ['$scope', '$uibModalInstance', function($scope, $uibModalInstance) {
+           $scope.ok = function() {
+               $uibModalInstance.close();
+           };
+           $scope.cancel = function() {
+               $uibModalInstance.dismiss();
+           };
        }]).directive('fileModel', function($parse) {
            return{
                restrict: 'A',
