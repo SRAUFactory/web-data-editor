@@ -1,5 +1,5 @@
 'use strict';
-angular.module('WebDataEditor', []).controller('EditorController', function($scope) {
+angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController', ['$scope', '$uibModal', function($scope, $uibModal) {
            const columnSeparetor = {
                csv : ',',
                tsv : '\t'
@@ -14,6 +14,13 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
            $scope.fileType = "csv";
            $scope.lfCode = "lf";
 
+           $scope.open = function() {
+               $uibModal.open({
+                   template: '<div class="md">{{message}}</div>',
+                   controller: 'ModalCtrl',
+                   backdrop:true
+               });
+           };
            $scope.download = function() {
                let temp = [];
                let separator = columnSeparetor[$scope.fileType];
@@ -76,7 +83,9 @@ angular.module('WebDataEditor', []).controller('EditorController', function($sco
                };
                reader.readAsText(file);
            });
-       }).directive('fileModel', function($parse) {
+       }]).controller('ModalCtrl', ['$scope', function($scope) {
+          $scope.message = 'メッセージ'; 
+       }]).directive('fileModel', function($parse) {
            return{
                restrict: 'A',
                link: function(scope,element,attrs) {

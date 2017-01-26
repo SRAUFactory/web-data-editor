@@ -41,3 +41,16 @@ main {
     top: 51px;
     padding: 20px;
 }
+
+body {
+    padding: 30px;
+}
+
+.md{
+    padding:50px;
+    text-align:center;
+}
+
+.fade {
+    opacity: 100;
+}

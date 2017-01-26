@@ -22,7 +22,7 @@
                             <a class="nav-link" href="#">新規作成</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">ファイルを開く</a>
+                            <a class="nav-link" href="#" ng-click="open()">ファイルを開く</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="download" href="#" download="test.csv" ng-click="download()" ng-show="show">保存</a>
@@ -86,9 +86,10 @@
                 </main>
             </div>
         </div>
-
-        <script src="js/angular.min.js"></script>
-        <!-- script src="js/bootstrap.min.js"></script> -->
-        <script src="js/app.js"></script>
     </body>
+    <script src="js/jquery-3.1.1.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/ui-bootstrap-2.4.0.min.js"></script>
+    <script src="js/ui-bootstrap-tpls-2.4.0.min.js"></script>
+    <script src="js/app.js"></script>
 </html>
