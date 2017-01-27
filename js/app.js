@@ -1,34 +1,32 @@
 'use strict';
 angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController', ['$scope', '$uibModal', function($scope, $uibModal) {
-           const columnSeparetor = {
+           $scope.columnSeparetor = {
                csv : ',',
                tsv : '\t'
            };
-           const lfCodeList = {
+           $scope.lfCodeList = {
                crlf : "\r\n",
                lf   : "\n",
                cr   : "\r"
            }
-           $scope.list = [];
            $scope.show = false;
            $scope.fileType = "csv";
            $scope.lfCode = "lf";
 
            $scope.open = function() {
                var modalInstance = $uibModal.open({
-                   template:'<div class="md"><button class="btn btn-primary" ng-click="ok()">ok</button><button class="btn btn-warning" ng-click="cancel()">cancel</button></div>',
+                   templateUrl:"file-modal",
                    controller: 'ModalCtrl',
+                   scope:$scope,
                });
                modalInstance.result.then(function() {
-                   $scope.message = 'closeが実行されました。';
                }, function() {
-                   $scope.message = 'dismissが実行されました。';
                });
            };
            $scope.download = function() {
                let temp = [];
-               let separator = columnSeparetor[$scope.fileType];
-               let lfCode = lfCodeList[$scope.lfCode];
+               let separator = $scope.columnSeparetor[$scope.fileType];
+               let lfCode = $scope.lfCodeList[$scope.lfCode];
                $scope.list.forEach(function(cols, index) {
                    temp[index] = cols.join(separator);
                });
@@ -64,6 +62,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                });
            }
 
+       }]).controller('ModalCtrl', ['$scope', '$uibModalInstance', function($scope, $uibModalInstance) {
            $scope.$watch("file", function(file) {
                if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
                    return;
@@ -72,8 +71,8 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                let reader = new FileReader();
                reader.onload = function() {
                    $scope.$apply(function(){
-                       let separator = columnSeparetor[$scope.fileType];
-                       let lfCode = lfCodeList[$scope.lfCode];
+                       let separator = $scope.columnSeparetor[$scope.fileType];
+                       let lfCode = $scope.lfCodeList[$scope.lfCode];
                        let temp = reader.result.split(lfCode);
                        temp.forEach(function(row, index) {
                            let rows = row.split(separator);
@@ -83,16 +82,16 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                            $scope.list.pop();
                        }
                        $scope.show = ($scope.list.length > 0)? true : false;
+                       console.log($scope);
+                       $uibModalInstance.close();
                    });
                };
                reader.readAsText(file);
            });
-       }]).controller('ModalCtrl', ['$scope', '$uibModalInstance', function($scope, $uibModalInstance) {
-           $scope.ok = function() {
+
+           $scope.close = function() {
+               console.log($scope);
                $uibModalInstance.close();
-           };
-           $scope.cancel = function() {
-               $uibModalInstance.dismiss();
            };
        }]).directive('fileModel', function($parse) {
            return{
