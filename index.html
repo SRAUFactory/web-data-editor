@@ -22,10 +22,10 @@
                             <a class="nav-link" href="#">新規作成</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#" ng-click="open()">ファイルを開く</a>
+                            <a class="nav-link" href="#" ng-click="openFile()">ファイルを開く</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="download" href="#" download="test.csv" ng-click="download()" ng-show="show">保存</a>
+                            <a class="nav-link" id="download" href="#" ng-click="saveFile()" ng-show="show">保存</a>
                         </li>
                     </ul>
                 </nav>
@@ -97,12 +97,21 @@
                                     <option value="cr">CR</option>
                                 </select>
                             </div>
-                            <input type="file" name="uploadFile" class="form-control" file-model="file">
+                            <div ng-show="isNew">
+                                読込ファイル:
+                                <input type="file" name="uploadFile" class="form-control" file-model="file"/>
+                            </div>
+                            <div ng-show="!isNew">
+                                保存ファイル名:
+                                <input type="text" name="fileName" class="form-control" ng-model="fileName"/>
+                            </div>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" ng-click="close()">閉じる</button>
+                     <button type="button" class="btn btn-default" ng-click="save()" ng-show="!isNew">保存</button>
+                     <button type="button" class="btn btn-default" ng-click="close()">閉じる</button>
+
                 </div>
             </div>
         </script>
