@@ -15,6 +15,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            $scope.list = [];
 
            $scope.open = function() {
+               $scope.file = null;
                var modalInstance = $uibModal.open({
                    templateUrl: "file-modal",
                    controller: 'ModalCtrl',
@@ -22,7 +23,6 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                });
                modalInstance.result.then(function() {
                    if (modalInstance.result.$$state.value) {
-                       console.log(modalInstance.result.$$state.value);
                        $scope.getList(modalInstance.result.$$state.value);
                    }
                }, function() {
@@ -67,7 +67,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                });
            }
 
-           $scope.getList = function(file) {
+           $scope.getList = function(info) {
                let reader = new FileReader();
                reader.onload = function() {
                    $scope.$apply(function(){
@@ -84,14 +84,22 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                        $scope.show = ($scope.list.length > 0)? true : false;
                    }); 
                };
-               reader.readAsText(file);
+               $scope.file = info.file;
+               $scope.fileType = info.fileType;
+               $scope.lfCode = info.lfCode;
+               reader.readAsText(info.file);
            }
        }]).controller('ModalCtrl', ['$scope', '$uibModalInstance', function($scope, $uibModalInstance) {
            $scope.$watch("file", function(file) {
                if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
                    return;
                }
-               $uibModalInstance.close(file);
+               let result = {
+                   file: file,
+                   lfCode: $scope.lfCode,
+                   fileType: $scope.fileType,
+               };
+               $uibModalInstance.close(result);
            });
 
            $scope.close = function() {
