@@ -12,14 +12,19 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            $scope.show = false;
            $scope.fileType = "csv";
            $scope.lfCode = "lf";
+           $scope.list = [];
 
            $scope.open = function() {
                var modalInstance = $uibModal.open({
-                   templateUrl:"file-modal",
+                   templateUrl: "file-modal",
                    controller: 'ModalCtrl',
-                   scope:$scope,
+                   scope: $scope,
                });
                modalInstance.result.then(function() {
+                   if (modalInstance.result.$$state.value) {
+                       console.log(modalInstance.result.$$state.value);
+                       $scope.getList(modalInstance.result.$$state.value);
+                   }
                }, function() {
                });
            };
@@ -62,12 +67,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                });
            }
 
-       }]).controller('ModalCtrl', ['$scope', '$uibModalInstance', function($scope, $uibModalInstance) {
-           $scope.$watch("file", function(file) {
-               if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
-                   return;
-               }
-               $scope.list = [];
+           $scope.getList = function(file) {
                let reader = new FileReader();
                reader.onload = function() {
                    $scope.$apply(function(){
@@ -82,15 +82,19 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                            $scope.list.pop();
                        }
                        $scope.show = ($scope.list.length > 0)? true : false;
-                       console.log($scope);
-                       $uibModalInstance.close();
-                   });
+                   }); 
                };
                reader.readAsText(file);
+           }
+       }]).controller('ModalCtrl', ['$scope', '$uibModalInstance', function($scope, $uibModalInstance) {
+           $scope.$watch("file", function(file) {
+               if(!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
+                   return;
+               }
+               $uibModalInstance.close(file);
            });
 
            $scope.close = function() {
-               console.log($scope);
                $uibModalInstance.close();
            };
        }]).directive('fileModel', function($parse) {
