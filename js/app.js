@@ -57,9 +57,15 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                let contents = temp.join(lfCode);
                let bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
                let blob = new Blob([bom, contents], { type: "text/plain" });
+
                let link = document.getElementById("download");
+               if (link === null) {
+                   link = document.createElement("a");
+                   link.setAttribute("id", "download");
+               }
                link.download = result.fileName;
                link.href = window.URL.createObjectURL(blob);
+               link.click();
            };
 
            $scope.addRow = function(row) {
