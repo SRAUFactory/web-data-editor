@@ -9,10 +9,39 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                lf   : "\n",
                cr   : "\r"
            }
+           const maxLines = 100;
            $scope.show = false;
            $scope.fileType = "csv";
            $scope.lfCode = "lf";
            $scope.list = [];
+           $scope.lines = [];
+           for (var i = 1; i <= maxLines; i++) {
+               $scope.lines[i] = i;
+           }
+           $scope.row = "1";
+           $scope.col = "1";
+
+           $scope.newFile = function() {
+                var modalInstance = $uibModal.open({
+                    templateUrl: "create-modal",
+                    controller: 'ModalCtrl',
+                    scope: $scope,
+                    resolve: {
+                        isNew: false,
+                    },
+                });
+                 modalInstance.result.then(function() {
+                     if (modalInstance.result.$$state.value) {
+                         $scope.list = [];
+                         for (var row = 0; row < modalInstance.result.$$state.value.row; ++row) {
+                             $scope.list[row] = [];
+                             for (var col = 0; col < modalInstance.result.$$state.value.col; col++) {
+                                 $scope.list[row][col] = "";
+                             }
+                         }
+                     }
+                 }, function() {});
+           };
 
            $scope.openFile = function() {
                $scope.openFileModal(true);
@@ -139,6 +168,14 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                    fileName: $scope.fileName,
                    lfCode: $scope.lfCode,
                    fileType: $scope.fileType,
+               };
+               $uibModalInstance.close(result);
+           };
+
+           $scope.create = function() {
+               let result = {
+                   row: $scope.row,
+                   col: $scope.col,
                };
                $uibModalInstance.close(result);
            };

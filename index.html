@@ -19,7 +19,7 @@
                 <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
                     <ul class="nav nav-pills flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="#">新規作成</a>
+                            <a class="nav-link" href="#" ng-click="newFile()">新規作成</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="#" ng-click="openFile()">ファイルを開く</a>
@@ -115,6 +115,36 @@
                 </div>
             </div>
         </script>
+        
+        <script type="text/ng-template" id="create-modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" ng-click="close()">
+                        <span aria-hidden="true">&#215;</span><span class="sr-only">閉じる</span>
+                    </button>
+                    <h4 class="modal-title">新規作成</h4>
+                </div>
+                <div class="modal-body">
+                    <form enctype="multipart/form-data">
+                        <div class="form-group modal-content">
+                            <div>
+                                行数:
+                                <select name="row" class="form-control" ng-model="row" ng-options="key as line for (key, line) in lines"></select>
+                            </div>
+                            <div>
+                                列数:
+                                <select name="col" class="form-control" ng-model="col" ng-options="key as line for (key, line) in lines"></select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" ng-click="create()">作成</button>
+                    <button type="button" class="btn btn-default" ng-click="close()">閉じる</button>
+                </div>
+            </div>
+    </script>
+    
     </body>
     <script src="js/jquery-3.1.1.min.js"></script>
     <script src="js/angular.min.js"></script>
