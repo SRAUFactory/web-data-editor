@@ -22,7 +22,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            $scope.col = "1";
 
            $scope.newFile = function() {
-                var modalInstance = $uibModal.open({
+               var modalInstance = $uibModal.open({
                     templateUrl: "create-modal",
                     controller: 'ModalCtrl',
                     scope: $scope,
@@ -44,21 +44,22 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            };
 
            $scope.openFile = function() {
-               $scope.openFileModal(true);
+               $scope.openFileModal(true, document.getElementById("openFile").innerHTML);
            };
 
            $scope.saveFile = function() {
-               $scope.openFileModal(false);
+               $scope.openFileModal(false, document.getElementById("saveFile").innerHTML);
            }
 
-           $scope.openFileModal = function(isNew) {
+           $scope.openFileModal = function(isNew, title) {
                $scope.file = null;
+               $scope.title = title;
                var modalInstance = $uibModal.open({
                    templateUrl: "file-modal",
                    controller: 'ModalCtrl',
                    scope: $scope,
                    resolve: {
-                       isNew: isNew 
+                       isNew: isNew,
                    }
                });
 

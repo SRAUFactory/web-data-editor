@@ -55,3 +55,7 @@ body {
     opacity: 50;
     top: 150px;
 }
+
+.modal.fade .modal-dialog {
+    transform: translate(0,0);
+ }

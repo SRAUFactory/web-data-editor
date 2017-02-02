@@ -19,13 +19,13 @@
                 <nav class="col-sm-3 col-md-2 hidden-xs-down bg-faded sidebar">
                     <ul class="nav nav-pills flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" href="#" ng-click="newFile()">新規作成</a>
+                            <a class="nav-link" href="#" ng-click="newFile()" id="newFile">新規作成</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#" ng-click="openFile()">ファイルを開く</a>
+                            <a class="nav-link" href="#" ng-click="openFile()" id="openFile">ファイルを開く</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#" ng-click="saveFile()" ng-show="show">保存</a>
+                            <a class="nav-link" href="#" ng-click="saveFile()" ng-show="show" id="saveFile">保存</a>
                         </li>
                     </ul>
                 </nav>
@@ -77,7 +77,7 @@
                     <button type="button" class="close" ng-click="close()">
                         <span aria-hidden="true">&#215;</span><span class="sr-only">閉じる</span>
                     </button>
-                    <h4 class="modal-title">ファイルから開く</h4>
+                    <h4 class="modal-title">{{title}}</h4>
                 </div>
                 <div class="modal-body">
                     <form enctype="multipart/form-data">
