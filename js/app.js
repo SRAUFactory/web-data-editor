@@ -20,8 +20,11 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            }
            $scope.row = "1";
            $scope.col = "1";
+           $scope.isModalShow = false;
 
            $scope.newFile = function() {
+               if ($scope.isModalShow) return;
+               $scope.file = null;
                var modalInstance = $uibModal.open({
                     templateUrl: "create-modal",
                     controller: 'ModalCtrl',
@@ -29,18 +32,24 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                     resolve: {
                         isNew: false,
                     },
+                    backdrop: "static",
+                    keyboard: false,
                 });
-                 modalInstance.result.then(function() {
-                     if (modalInstance.result.$$state.value) {
-                         $scope.list = [];
-                         for (var row = 0; row < modalInstance.result.$$state.value.row; ++row) {
-                             $scope.list[row] = [];
-                             for (var col = 0; col < modalInstance.result.$$state.value.col; col++) {
-                                 $scope.list[row][col] = "";
-                             }
-                         }
-                     }
-                 }, function() {});
+                modalInstance.result.then(function() {
+                    if (modalInstance.result.$$state.value) {
+                        $scope.list = [];
+                        for (var row = 0; row < modalInstance.result.$$state.value.row; ++row) {
+                            $scope.list[row] = [];
+                            for (var col = 0; col < modalInstance.result.$$state.value.col; col++) {
+                                $scope.list[row][col] = "";
+                            }
+                        }
+                    }
+                    $scope.isModalShow = false;
+                }, function() {
+                    $scope.isModalShow = false;
+                });
+                $scope.isModalShow = true;
            };
 
            $scope.openFile = function() {
@@ -52,6 +61,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            }
 
            $scope.openFileModal = function(isNew, title) {
+               if ($scope.isModalShow) return;
                $scope.file = null;
                $scope.title = title;
                var modalInstance = $uibModal.open({
@@ -60,10 +70,13 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                    scope: $scope,
                    resolve: {
                        isNew: isNew,
-                   }
+                   },
+                   backdrop: "static",
+                   keyboard: false,
                });
 
                modalInstance.result.then(function() {
+                   $scope.isModalShow = false;
                    if (!modalInstance.result.$$state.value) {
                        return;
                    }
@@ -74,7 +87,9 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                        $scope.download(modalInstance.result.$$state.value);
                    }
                }, function() {
+                   $scope.isModalShow = false;
                });
+               $scope.isModalShow = true;
            };
 
            $scope.download = function(result) {
