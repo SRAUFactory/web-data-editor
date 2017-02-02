@@ -41,3 +41,21 @@ main {
     top: 51px;
     padding: 20px;
 }
+
+body {
+    padding: 30px;
+}
+
+.md{
+    padding:0px;
+    text-align:center;
+}
+
+.fade {
+    opacity: 50;
+    top: 150px;
+}
+
+.modal.fade .modal-dialog {
+    transform: translate(0,0);
+ }
