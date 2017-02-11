@@ -10,6 +10,7 @@
     border-right: 1px solid #eee;
     padding-left: 0;
     padding-right: 0;
+    background-color: #333;
 }
 
 .sidebar .nav {
@@ -44,6 +45,8 @@ main {
 
 body {
     padding: 30px;
+    background-color: #000;
+    color: #fff;
 }
 
 .md{
@@ -58,4 +61,16 @@ body {
 
 .modal.fade .modal-dialog {
     transform: translate(0,0);
- }
+}
+
+.modal-content {
+    background-color: #888;
+}
+
+a {
+    color: #fff;
+}
+
+a:visited {
+    color: #fff;
+}
