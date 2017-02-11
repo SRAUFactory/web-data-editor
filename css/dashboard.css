@@ -78,7 +78,8 @@ table button {
 }
 
 .table th, .table td {
-    min-width: 160px;
+    min-width: 180px;
+    font-size: 24px;
 }
 
 a {
