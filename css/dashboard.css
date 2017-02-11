@@ -67,6 +67,10 @@ body {
     background-color: #888;
 }
 
+table.table {
+    background-color: #888;
+}
+
 a {
     color: #fff;
 }
