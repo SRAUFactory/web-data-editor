@@ -67,6 +67,21 @@ body {
     background-color: #888;
 }
 
+table.table {
+    background-color: #888;
+}
+
+table button {
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+}
+
+.table th, .table td {
+    min-width: 180px;
+    font-size: 24px;
+}
+
 a {
     color: #fff;
 }
