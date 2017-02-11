@@ -77,6 +77,10 @@ table button {
     font-size: 24px;
 }
 
+.table th, .table td {
+    min-width: 160px;
+}
+
 a {
     color: #fff;
 }
