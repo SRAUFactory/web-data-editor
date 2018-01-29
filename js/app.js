@@ -44,12 +44,13 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                                 $scope.list[row][col] = "";
                             }
                         }
+                        $scope.show = true;
                     }
                     $scope.isModalShow = false;
                 }, function() {
                     $scope.isModalShow = false;
                 });
-                $scope.isModalShow = $scope.show = true;
+                $scope.isModalShow = true;
            };
 
            $scope.openFile = function() {
