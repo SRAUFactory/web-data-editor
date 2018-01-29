@@ -49,7 +49,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                 }, function() {
                     $scope.isModalShow = false;
                 });
-                $scope.isModalShow = true;
+                $scope.isModalShow = $scope.show = true;
            };
 
            $scope.openFile = function() {
