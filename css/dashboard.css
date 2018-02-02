@@ -10,7 +10,7 @@
     border-right: 1px solid #eee;
     padding-left: 0;
     padding-right: 0;
-    background-color: #333;
+    background-color: gray;
 }
 
 .sidebar .nav {
@@ -45,8 +45,8 @@ main {
 
 body {
     padding: 30px;
-    background-color: #000;
-    color: #fff;
+    background-color: black;
+    color: white;
 }
 
 .md{
@@ -63,12 +63,8 @@ body {
     transform: translate(0,0);
 }
 
-.modal-content {
-    background-color: #888;
-}
-
-table.table {
-    background-color: #888;
+table.table, .modal-content {
+    background-color: gray;
 }
 
 table button {
@@ -82,10 +78,6 @@ table button {
     font-size: 24px;
 }
 
-a {
-    color: #fff;
-}
-
-a:visited {
-    color: #fff;
+a, a:visited {
+    color: white;
 }
