@@ -52,6 +52,7 @@
                                     {{$index + 1}}
                                     <button ng-click="addCol($index)">+</button>
                                     <button ng-click="delCol($index)">-</button>
+                                    <button ng-click="autoColNumber($index)">N</button>
                                 </th>
                                 <th>
                                     <button ng-click="addCol(list[0].length)">+</button>
@@ -61,6 +62,7 @@
                                 <th>
                                     <button ng-click="addRow($index)">+</button>
                                     <button ng-click="delRow($index)">-</button>
+                                    <button ng-click="autoRowNumber($index)">N</button>
                                     {{$index + 1}}
                                 </th>
                                 <td ng-repeat="(col, value) in rows track by $index">
