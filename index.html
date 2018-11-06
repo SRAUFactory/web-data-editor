@@ -9,12 +9,12 @@
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=UA-112748346-1"></script>
         <script type="text/javascript">
-window.dataLayer = window.dataLayer || [];
-function gtag(){
-    dataLayer.push(arguments);
-};
-gtag('js', new Date());
-gtag('config', 'UA-112748346-1');
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+                dataLayer.push(arguments);
+            };
+            gtag('js', new Date());
+            gtag('config', 'UA-112748346-1');
         </script>
     </head>
     <body ng-controller="EditorController">
@@ -30,6 +30,9 @@ gtag('config', 'UA-112748346-1');
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#" ng-click="openFile()" id="openFile">ファイルを開く</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" ng-click="clear()" id="clear">クリア</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#" ng-click="saveFile()" ng-show="show" id="saveFile">保存</a>
@@ -81,7 +84,7 @@ gtag('config', 'UA-112748346-1');
         </div>
 
         <script type="text/ng-template" id="file-modal">
-<div class="modal-content">
+            <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" ng-click="close()">
                         <span aria-hidden="true">&#215;</span><span class="sr-only">閉じる</span>
@@ -126,7 +129,7 @@ gtag('config', 'UA-112748346-1');
         </script>
 
         <script type="text/ng-template" id="create-modal">
-<div class="modal-content">
+            <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" ng-click="close()">
                         <span aria-hidden="true">&#215;</span><span class="sr-only">閉じる</span>

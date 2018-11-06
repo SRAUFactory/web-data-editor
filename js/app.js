@@ -61,6 +61,10 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                $scope.openFileModal(false, document.getElementById("saveFile").innerHTML);
            }
 
+           $scope.clear = function() {
+               window.location.reload();
+           }
+
            $scope.openFileModal = function(isNew, title) {
                if ($scope.isModalShow) return;
                $scope.file = null;
