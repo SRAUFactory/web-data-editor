@@ -60,10 +60,10 @@
                             </tr>
                             <tr ng-repeat="(row, rows) in list track by $index">
                                 <th>
+                                    {{$index + 1}}
                                     <button ng-click="addRow($index)">+</button>
                                     <button ng-click="delRow($index)">-</button>
                                     <button ng-click="autoRowNumber($index)">N</button>
-                                    {{$index + 1}}
                                 </th>
                                 <td ng-repeat="(col, value) in rows track by $index">
                                     <input type="text" class="form-control" ng-model="list[row][col]">
