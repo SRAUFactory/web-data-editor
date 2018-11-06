@@ -130,6 +130,12 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                $scope.list.splice(row, 1);
            };
 
+           $scope.autoRowNumber = function(row) {
+               $scope.list[row].forEach(function(rows, index) {
+                   $scope.list[row][index] = index + 1;
+               });
+           }
+
            $scope.addCol = function(col) {
                $scope.list.forEach(function(cols, index) {
                    cols.splice(col, 0, '');
@@ -139,6 +145,12 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            $scope.delCol = function(col) {
                $scope.list.forEach(function(cols, index) {
                    cols.splice(col, 1);
+               });
+           }
+
+           $scope.autoColNumber = function(col) {
+               $scope.list.forEach(function(cols, index) {
+                   cols[col] = index + 1;
                });
            }
 
