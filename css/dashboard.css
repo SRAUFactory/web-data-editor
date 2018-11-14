@@ -37,9 +37,10 @@ table.table, .modal-content {
 }
 
 table button {
-    width: 50px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
     font-size: 24px;
+    line-height: 12px;
 }
 
 .table th, .table td {
