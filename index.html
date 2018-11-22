@@ -53,6 +53,7 @@
                                     <button ng-click="addCol($index)">+</button>
                                     <button ng-click="delCol($index)">-</button>
                                     <button ng-click="autoColNumber($index)">N</button>
+                                    <button ng-click="copyCol($index)">C</button>
                                 </th>
                                 <th>
                                     <button ng-click="addCol(list[0].length)">+</button>
@@ -64,6 +65,7 @@
                                     <button ng-click="addRow($index)">+</button>
                                     <button ng-click="delRow($index)">-</button>
                                     <button ng-click="autoRowNumber($index)">N</button>
+                                    <button ng-click="copyRow($index)">C</button>
                                 </th>
                                 <td ng-repeat="(col, value) in rows track by $index">
                                     <input type="text" class="form-control" ng-model="list[row][col]">

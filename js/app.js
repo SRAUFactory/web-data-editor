@@ -134,7 +134,12 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                $scope.list[row].forEach(function(rows, index) {
                    $scope.list[row][index] = index + 1;
                });
-           }
+           };
+
+           $scope.copyRow = function(row) {
+               let temp = $scope.list[row];
+               $scope.list.splice(row, 0, temp);
+           };
 
            $scope.addCol = function(col) {
                $scope.list.forEach(function(cols, index) {
@@ -152,7 +157,10 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                $scope.list.forEach(function(cols, index) {
                    cols[col] = index + 1;
                });
-           }
+           };
+
+           $scope.copyCol = function(col) {
+           };
 
            $scope.getList = function(info) {
                let reader = new FileReader();
