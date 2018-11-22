@@ -137,8 +137,11 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            };
 
            $scope.copyRow = function(row) {
-               let temp = $scope.list[row];
-               $scope.list.splice(row, 0, temp);
+                let temp = [];
+                $scope.list[row].forEach(function(rows, index) {
+                    temp[index] = rows;
+                });
+                $scope.list.splice(row, 0, temp);
            };
 
            $scope.addCol = function(col) {
@@ -160,6 +163,11 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
            };
 
            $scope.copyCol = function(col) {
+               $scope.list.forEach(function(cols, index) {
+                   console.log(cols);
+                   console.log(col + " : " + cols[col]);
+                   cols.splice(col, 0, cols[col]);
+               });
            };
 
            $scope.getList = function(info) {
