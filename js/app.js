@@ -118,10 +118,10 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                link.click();
            };
 
-           $scope.addRow = function(row) {
+           $scope.addRow = function(row, isEmpty) {
                let temp = [];
                $scope.list[0].forEach(function(rows, index) {
-                   temp[index] = '';
+                   temp[index] = (isEmpty == true)? '' : rows;
                });
                $scope.list.splice(row, 0, temp);
            };
@@ -134,11 +134,12 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                $scope.list[row].forEach(function(rows, index) {
                    $scope.list[row][index] = index + 1;
                });
-           }
+           };
 
-           $scope.addCol = function(col) {
+           $scope.addCol = function(col, isEmpty) {
                $scope.list.forEach(function(cols, index) {
-                   cols.splice(col, 0, '');
+                   var value = (isEmpty == true)? '' : cols[col];
+                   cols.splice(col, 0, value);
                });
            };
 
@@ -152,7 +153,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
                $scope.list.forEach(function(cols, index) {
                    cols[col] = index + 1;
                });
-           }
+           };
 
            $scope.getList = function(info) {
                let reader = new FileReader();
