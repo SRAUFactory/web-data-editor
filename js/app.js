@@ -157,6 +157,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
 
            $scope.getList = function(info) {
                let reader = new FileReader();
+               $scope.list = [];
                reader.onload = function() {
                    $scope.$apply(function(){
                        let separator = $scope.columnSeparetor[$scope.fileType];
