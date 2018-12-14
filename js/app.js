@@ -120,7 +120,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
 
            $scope.addRow = function(row, isEmpty) {
                let temp = [];
-               $scope.list[0].forEach(function(rows, index) {
+               $scope.list[row].forEach(function(rows, index) {
                    temp[index] = (isEmpty == true)? '' : rows;
                });
                $scope.list.splice(row, 0, temp);
