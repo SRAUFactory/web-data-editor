@@ -120,7 +120,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
 
            $scope.addRow = function(row, isEmpty) {
                let temp = [];
-               $scope.list[0].forEach(function(rows, index) {
+               $scope.list[row].forEach(function(rows, index) {
                    temp[index] = (isEmpty == true)? '' : rows;
                });
                $scope.list.splice(row, 0, temp);
@@ -157,6 +157,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
 
            $scope.getList = function(info) {
                let reader = new FileReader();
+               $scope.list = [];
                reader.onload = function() {
                    $scope.$apply(function(){
                        let separator = $scope.columnSeparetor[$scope.fileType];
