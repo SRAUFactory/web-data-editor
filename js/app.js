@@ -31,6 +31,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
       scope: $scope,
       resolve: {
         isNew: false,
+        isJson: false,
       },
       backdrop: "static",
       keyboard: false,
@@ -75,6 +76,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
       scope: $scope,
       resolve: {
         isNew: isNew,
+        isJson: false,
       },
       backdrop: "static",
       keyboard: false,
@@ -183,8 +185,9 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     $scope.lfCode = info.lfCode;
     reader.readAsText(info.file);
   }
-}]).controller('ModalCtrl', ['$scope', '$uibModalInstance', 'isNew', function ($scope, $uibModalInstance, isNew) {
+}]).controller('ModalCtrl', ['$scope', '$uibModalInstance', 'isNew', 'isJson', function ($scope, $uibModalInstance, isNew, isJson) {
   $scope.isNew = isNew;
+  $scope.isJson = isJson;
 
   $scope.$watch("file", function (file) {
     if (!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
@@ -196,6 +199,10 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
       fileType: $scope.fileType,
     };
     $uibModalInstance.close(result);
+  });
+
+  $scope.$watch("fileType", function (value) {
+    $scope.isJson = value == "json";
   });
 
   $scope.close = function () {

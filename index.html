@@ -110,7 +110,7 @@
                 <option value="json">JSON</option>
               </select>
             </div>
-            <div>
+            <div ng-show="!isJson">
               改行コード：
               <select name="lfCode" class="form-control" ng-model="lfCode">
                 <option value="crlf">CR+LF</option>
