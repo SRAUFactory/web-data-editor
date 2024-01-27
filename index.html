@@ -105,16 +105,17 @@
             <div>
               ファイル形式:
               <select name="fileType" class="form-control" ng-model="fileType">
-                  <option value="csv">CSV</option>
-                  <option value="tsv">TSV</option>
+                <option value="csv">CSV</option>
+                <option value="tsv">TSV</option>
+                <option value="json">JSON</option>
               </select>
             </div>
             <div>
               改行コード：
               <select name="lfCode" class="form-control" ng-model="lfCode">
-                  <option value="crlf">CR+LF</option>
-                  <option value="lf">LF</option>
-                  <option value="cr">CR</option>
+                <option value="crlf">CR+LF</option>
+                <option value="lf">LF</option>
+                <option value="cr">CR</option>
               </select>
             </div>
             <div ng-show="isNew">

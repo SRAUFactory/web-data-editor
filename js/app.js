@@ -160,15 +160,19 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     $scope.list = [];
     reader.onload = function () {
       $scope.$apply(function () {
-        let separator = $scope.columnSeparetor[$scope.fileType];
-        let lfCode = $scope.lfCodeList[$scope.lfCode];
-        let temp = reader.result.split(lfCode);
-        temp.forEach(function (row, index) {
-          let rows = row.split(separator);
-          $scope.list[index] = rows;
-        });
-        if ($scope.list[0].length !== $scope.list[$scope.list.length - 1].length) {
-          $scope.list.pop();
+        if ($scope.fileType == 'json') {
+          alert('json file open!!');
+        } else {
+          let separator = $scope.columnSeparetor[$scope.fileType];
+          let lfCode = $scope.lfCodeList[$scope.lfCode];
+          let temp = reader.result.split(lfCode);
+          temp.forEach(function (row, index) {
+            let rows = row.split(separator);
+            $scope.list[index] = rows;
+          });
+          if ($scope.list[0].length !== $scope.list[$scope.list.length - 1].length) {
+            $scope.list.pop();
+          }
         }
         $scope.show = ($scope.list.length > 0) ? true : false;
       });
