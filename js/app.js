@@ -186,7 +186,16 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     reader.onload = function () {
       $scope.$apply(function () {
         if ($scope.fileType == 'json') {
-          alert('json file open!!');
+          let contents = JSON.parse(reader.result);
+          contents.forEach(function (obj, objIndex) {
+            if (objIndex == 0) {
+              $scope.list[0] = Object.keys(obj);
+            }
+            $scope.list[objIndex + 1] = [];
+            $scope.list[0].forEach(function (header, headerIndex) {
+              $scope.list[objIndex + 1][headerIndex] = obj[header];
+            });
+          });
         } else {
           let separator = $scope.columnSeparetor[$scope.fileType];
           let lfCode = $scope.lfCodeList[$scope.lfCode];
@@ -213,7 +222,8 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
   $scope.isJson = isJson;
 
   $scope.$watch("file", function (file) {
-    if (!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
+    if (!file
+      || (!file.type.match('text/csv') && !file.type.match('application/json') && !file.type.match('text/tab-separated-values'))) {
       return;
     }
     let result = {
