@@ -99,7 +99,22 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     $scope.isModalShow = true;
   };
 
-  $scope.download = function (result) {
+  $scope.createJson = function () {
+    let contents = [];
+    let headers = $scope.list[0];
+    $scope.list.forEach(function (cols, index) {
+      if (index > 0) {
+        let temp = {};
+        headers.forEach(function (header, index) {
+          temp[header] = cols[index];
+        });
+        contents.push(temp);
+      }
+    });
+   return new Blob([JSON.stringify(contents)], { type: 'application\/json' });
+  };
+
+  $scope.createText = function (result) {
     let temp = [];
     let separator = $scope.columnSeparetor[result.fileType];
     let lfCode = $scope.lfCodeList[result.lfCode];
@@ -108,8 +123,16 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     });
     let contents = temp.join(lfCode);
     let bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-    let blob = new Blob([bom, contents], { type: "text/plain" });
+    return new Blob([bom, contents], { type: "text/plain" });
+  };
 
+  $scope.download = function (result) {
+    let blob;
+    if (result.fileType == 'json') {
+      blob = $scope.createJson();
+    } else {
+      blob = $scope.createText(result);
+    }
     let link = document.getElementById("download");
     if (link === null) {
       link = document.createElement("a");
