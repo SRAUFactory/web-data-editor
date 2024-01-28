@@ -31,6 +31,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
       scope: $scope,
       resolve: {
         isNew: false,
+        isJson: false,
       },
       backdrop: "static",
       keyboard: false,
@@ -75,6 +76,7 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
       scope: $scope,
       resolve: {
         isNew: isNew,
+        isJson: false,
       },
       backdrop: "static",
       keyboard: false,
@@ -97,7 +99,22 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     $scope.isModalShow = true;
   };
 
-  $scope.download = function (result) {
+  $scope.createJson = function () {
+    let contents = [];
+    let headers = $scope.list[0];
+    $scope.list.forEach(function (cols, index) {
+      if (index > 0) {
+        let temp = {};
+        headers.forEach(function (header, index) {
+          temp[header] = cols[index];
+        });
+        contents.push(temp);
+      }
+    });
+   return new Blob([JSON.stringify(contents)], { type: 'application\/json' });
+  };
+
+  $scope.createText = function (result) {
     let temp = [];
     let separator = $scope.columnSeparetor[result.fileType];
     let lfCode = $scope.lfCodeList[result.lfCode];
@@ -106,8 +123,16 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     });
     let contents = temp.join(lfCode);
     let bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-    let blob = new Blob([bom, contents], { type: "text/plain" });
+    return new Blob([bom, contents], { type: "text/plain" });
+  };
 
+  $scope.download = function (result) {
+    let blob;
+    if (result.fileType == 'json') {
+      blob = $scope.createJson();
+    } else {
+      blob = $scope.createText(result);
+    }
     let link = document.getElementById("download");
     if (link === null) {
       link = document.createElement("a");
@@ -160,15 +185,28 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     $scope.list = [];
     reader.onload = function () {
       $scope.$apply(function () {
-        let separator = $scope.columnSeparetor[$scope.fileType];
-        let lfCode = $scope.lfCodeList[$scope.lfCode];
-        let temp = reader.result.split(lfCode);
-        temp.forEach(function (row, index) {
-          let rows = row.split(separator);
-          $scope.list[index] = rows;
-        });
-        if ($scope.list[0].length !== $scope.list[$scope.list.length - 1].length) {
-          $scope.list.pop();
+        if ($scope.fileType == 'json') {
+          let contents = JSON.parse(reader.result);
+          contents.forEach(function (obj, objIndex) {
+            if (objIndex == 0) {
+              $scope.list[0] = Object.keys(obj);
+            }
+            $scope.list[objIndex + 1] = [];
+            $scope.list[0].forEach(function (header, headerIndex) {
+              $scope.list[objIndex + 1][headerIndex] = obj[header];
+            });
+          });
+        } else {
+          let separator = $scope.columnSeparetor[$scope.fileType];
+          let lfCode = $scope.lfCodeList[$scope.lfCode];
+          let temp = reader.result.split(lfCode);
+          temp.forEach(function (row, index) {
+            let rows = row.split(separator);
+            $scope.list[index] = rows;
+          });
+          if ($scope.list[0].length !== $scope.list[$scope.list.length - 1].length) {
+            $scope.list.pop();
+          }
         }
         $scope.show = ($scope.list.length > 0) ? true : false;
       });
@@ -179,11 +217,13 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     $scope.lfCode = info.lfCode;
     reader.readAsText(info.file);
   }
-}]).controller('ModalCtrl', ['$scope', '$uibModalInstance', 'isNew', function ($scope, $uibModalInstance, isNew) {
+}]).controller('ModalCtrl', ['$scope', '$uibModalInstance', 'isNew', 'isJson', function ($scope, $uibModalInstance, isNew, isJson) {
   $scope.isNew = isNew;
+  $scope.isJson = isJson;
 
   $scope.$watch("file", function (file) {
-    if (!file || (!file.type.match('text/csv') && !file.type.match('text/tab-separated-values'))) {
+    if (!file
+      || (!file.type.match('text/csv') && !file.type.match('application/json') && !file.type.match('text/tab-separated-values'))) {
       return;
     }
     let result = {
@@ -192,6 +232,10 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
       fileType: $scope.fileType,
     };
     $uibModalInstance.close(result);
+  });
+
+  $scope.$watch("fileType", function (value) {
+    $scope.isJson = value == "json";
   });
 
   $scope.close = function () {
