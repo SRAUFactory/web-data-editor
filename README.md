@@ -35,5 +35,5 @@ Installation of the library is unnecessary.
 ### Save and download to edited data
 1. Click the link of `保存`
 2. In the displayed Modal, select file format
-3. 3. Click the button of `保存`
+3. Click the button of `保存` in the modal
 4. you can download the contents of the file edited on the screen
