@@ -222,8 +222,10 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
   $scope.isJson = isJson;
 
   $scope.$watch("file", function (file) {
-    if (!file
-      || (!file.type.match('text/csv') && !file.type.match('application/json') && !file.type.match('text/tab-separated-values'))) {
+    if (!file) {
+      return;
+    }
+    if (!file.type.match('text/csv|application/json|text/tab-separated-values')) {
       return;
     }
     let result = {
