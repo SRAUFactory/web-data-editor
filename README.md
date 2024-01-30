@@ -4,12 +4,12 @@ Since it works only with HTML, JavaScript, AngularJS, it works easily with renta
 
 
 ## feature
-* Create new csv/tsv data
-* Editing csv/tsv file
+* Create new csv/tsv/json data
+* Editing csv/tsv/json file
   * Add/Delete row and column
   * Change to the value
   * Convert to data form
-* Save and download edited csv/tsv data
+* Save and download edited csv/tsv/json data
 
 ## How to use
 ### Deploy
@@ -25,7 +25,7 @@ Installation of the library is unnecessary.
 
 ### Editing from the file
 1. Click the link of `ファイルから開く`.
-2. In the displayed Modal, select file format 
+2. In the displayed Modal, select file format
 3. Select file from the file tag on the screen
 4. The data is loaded on the screen and the input form for editing is displayed
 
@@ -34,6 +34,6 @@ Installation of the library is unnecessary.
 
 ### Save and download to edited data
 1. Click the link of `保存`
-2. In the displayed Modal, select file format 
-3. 3. Click the button of `保存` 
+2. In the displayed Modal, select file format
+3. 3. Click the button of `保存`
 4. you can download the contents of the file edited on the screen
