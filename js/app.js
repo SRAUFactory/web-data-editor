@@ -149,8 +149,8 @@ angular.module('WebDataEditor', ['ui.bootstrap']).controller('EditorController',
     if ($scope.list.length == index) {
       index = $scope.list.length - 1
     }
-    $scope.list[index].forEach(function (rows, index) {
-      temp[index] = (isEmpty == true) ? '' : rows;
+    $scope.list[index].forEach(function (rows, col) {
+      temp[col] = (isEmpty == true) ? '' : rows;
     });
     $scope.list.splice(row, 0, temp);
   };
