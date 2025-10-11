@@ -1,51 +1,50 @@
 <script lang="ts">
-  import { rows, schema, selectedIndex, isFormView } from '$lib/stores/editor';
+  import { rows, selected, isFormView } from '$lib/stores/editor';
   import { get } from 'svelte/store';
 
-  let local = {} as any;
-
-  $: idx = $selectedIndex;
+  let data: string[] = [];
+  $: idx = $selected.row;
 
   $: if (idx !== null) {
-    const r = get(rows)[idx] || {};
-    local = JSON.parse(JSON.stringify(r));
+    data = [...(get(rows)[idx] || [])];
   }
 
   function save() {
     if (idx === null) return;
-    rows.update(rs => { rs[idx] = local; return rs; });
+    rows.update(r => {
+      r[idx] = [...data];
+      return r;
+    });
     isFormView.set(false);
-    selectedIndex.set(null);
+    selected.set({ row: null, col: null });
   }
 
-  function cancel() {
+  function back() {
     isFormView.set(false);
-    selectedIndex.set(null);
+    selected.set({ row: null, col: null });
   }
 </script>
 
-{#if idx === null}
-  <p>編集対象が選択されていません。テーブルから編集を始めてください。</p>
-{:else}
-  <div class="editor">
-    <h2>行編集</h2>
-    {#each $schema.fields as f}
-      <div class="field">
-        <label>{f.label}</label>
-        {#if f.type === 'number'}
-          <input type="number" bind:value={local[f.key]} />
-        {:else}
-          <input type="text" bind:value={local[f.key]} />
-        {/if}
-      </div>
-    {/each}
+<article>
+  <h2>フォーム編集（モーダル置換）</h2>
+  {#if idx === null}
+    <p>テーブルから編集を開始してください。</p>
+  {:else}
+    <form on:submit|preventDefault={save}>
+      {#each data as cell, j}
+        <div>
+          <label for={"col" + j}>列 {j}</label>
+          <input id={"col" + j} bind:value={data[j]} />
+        </div>
+      {/each}
 
-    <button on:click={save}>保存</button>
-    <button on:click={cancel}>キャンセル</button>
-  </div>
-{/if}
+      <button type="submit">保存</button>
+      <button type="button" on:click={back}>戻る</button>
+    </form>
+  {/if}
+</article>
 
 <style>
-  .editor { border: 1px solid #ddd; padding: 1rem; margin-top: 1rem; }
-  .field { margin-bottom: 0.5rem; }
+  article { border: 1px solid #eee; padding: 1rem; margin-top: 1rem; }
+  form div { margin-bottom: 0.5rem; }
 </style>

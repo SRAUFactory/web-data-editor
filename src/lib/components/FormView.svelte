@@ -1,35 +1,40 @@
 <script lang="ts">
-  import { rows, schema, selectedIndex, isFormView } from '$lib/stores/editor';
+  import { rows, selected, isFormView } from '$lib/stores/editor';
   import { get } from 'svelte/store';
 
-  let data: any = {};
-  $: idx = $selectedIndex;
+  let data: string[] = [];
+  $: idx = $selected.row;
 
-  $: if (idx !== null) data = JSON.parse(JSON.stringify(get(rows)[idx] || {}));
+  $: if (idx !== null) {
+    data = [...(get(rows)[idx] || [])];
+  }
 
   function save() {
     if (idx === null) return;
-    rows.update(rs => { rs[idx] = data; return rs; });
+    rows.update(r => {
+      r[idx] = [...data];
+      return r;
+    });
     isFormView.set(false);
-    selectedIndex.set(null);
+    selected.set({ row: null, col: null });
   }
 
   function back() {
     isFormView.set(false);
-    selectedIndex.set(null);
+    selected.set({ row: null, col: null });
   }
 </script>
 
 <article>
-  <h2>フォームで編集（モーダル置換）</h2>
+  <h2>フォーム編集（モーダル置換）</h2>
   {#if idx === null}
-    <p>新しい行の作成やテーブルから編集を開始してください。</p>
+    <p>テーブルから編集を開始してください。</p>
   {:else}
     <form on:submit|preventDefault={save}>
-      {#each $schema.fields as f}
+      {#each data as cell, j}
         <div>
-          <label for={f.key}>{f.label}</label>
-          <input id={f.key} bind:value={data[f.key]} type={f.type === 'number' ? 'number' : 'text'} />
+          <label for={"col" + j}>列 {j}</label>
+          <input id={"col" + j} bind:value={data[j]} />
         </div>
       {/each}
 
