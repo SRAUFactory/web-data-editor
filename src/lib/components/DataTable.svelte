@@ -9,9 +9,14 @@
 
   function addRow() {
     const current = get(rows);
-    const cols = current[0]?.length ?? 0;
-    const newRow = new Array(cols).fill('');
+    if (current.length === 0) return;
+    const cols = current[0].length;
+    const newRow = Array(cols).fill('');
     rows.update(r => [...r, newRow]);
+  }
+
+  function addColumn() {
+    rows.update(r => r.map(row => [...row, '']));
   }
 </script>
 
@@ -37,5 +42,10 @@
     {/each}
   </tbody>
 </table>
+
+<div style="margin-top:1rem;">
+  <button on:click={addRow}>行を追加</button>
+  <button on:click={addColumn} style="margin-left:1rem;">列を追加</button>
+</div>
 
 <button on:click={addRow} style="margin-top:1rem;">行を追加</button>

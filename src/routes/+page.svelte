@@ -5,12 +5,19 @@
   import { rows, isFormView, fileSettings } from '$lib/stores/editor';
   import type { FileSettings } from '$lib/types';
 
+  let newRowCount = 3;  // デフォルト行数
+  let newColCount = 3;  // デフォルト列数
+
   function newFile() {
-    rows.set([
-      ['ID', 'Name', 'Age'],
-      ['1', 'Alice', '30'],
-      ['2', 'Bob', '25']
-    ]);
+    const data: string[][] = [];
+    for (let i = 0; i < newRowCount; i++) {
+      const row: string[] = [];
+      for (let j = 0; j < newColCount; j++) {
+        row.push(''); // 各セルは空
+      }
+      data.push(row);
+    }
+    rows.set(data);
   }
 
   function handleFileSettingsChange(e: Event, key: keyof FileSettings) {
@@ -46,6 +53,25 @@
         <option value="CR">CR</option>
       </select>
     </label>
+
+    <label class="select-group">
+      行数:
+      <select bind:value={newRowCount}>
+        {#each Array(20).fill(0).map((_, i) => i + 1) as num}
+          <option value={num}>{num}</option>
+        {/each}
+      </select>
+    </label>
+
+    <label class="select-group">
+      列数:
+      <select bind:value={newColCount}>
+        {#each Array(20).fill(0).map((_, i) => i + 1) as num}
+          <option value={num}>{num}</option>
+        {/each}
+      </select>
+    </label>
+
 
     <button style="margin-left:1rem" on:click={newFile}>新規作成</button>
   </section>
