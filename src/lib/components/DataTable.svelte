@@ -5,8 +5,10 @@
   /** セル編集（直接編集） */
   function updateCell(rowIdx: number, colIdx: number, value: string) {
     rows.update(r => {
-      r[rowIdx][colIdx] = value;
-      return r;
+      // defensive copy to keep immutability
+      const newR = r.map(row => [...row]);
+      newR[rowIdx][colIdx] = value;
+      return newR;
     });
   }
 
@@ -16,7 +18,7 @@
     const cols = current[0]?.length ?? 0;
     const newRow = Array(cols).fill('');
     rows.update(r => {
-      const newArr = [...r];
+      const newArr = r.map(row => [...row]);
       newArr.splice(afterIdx + 1, 0, newRow);
       return newArr;
     });
@@ -33,36 +35,56 @@
     });
   }
 
+  /** 行削除 */
+  function deleteRow(idx: number) {
+    rows.update(r => {
+      const newArr = r.map(row => [...row]);
+      newArr.splice(idx, 1);
+      return newArr;
+    });
+  }
+
+  /** 列削除 */
+  function deleteColumn(idx: number) {
+    rows.update(r => {
+      return r.map(row => {
+        const newRow = [...row];
+        newRow.splice(idx, 1);
+        return newRow;
+      });
+    });
+  }
+
   /** 採番処理 */
   function assignNumbers(mode: 'row' | 'col', index: number) {
     rows.update(r => {
+      const newR = r.map(row => [...row]);
       if (mode === 'row') {
-        // 行方向のセルに連番
-        r[index] = r[index].map((_, j) => String(j + 1));
+        newR[index] = newR[index].map((_, j) => String(j + 1));
       } else {
-        // 列方向のセルに連番
-        for (let i = 0; i < r.length; i++) {
-          r[i][index] = String(i + 1);
+        for (let i = 0; i < newR.length; i++) {
+          newR[i][index] = String(i + 1);
         }
       }
-      return r;
+      return newR;
     });
   }
 
   /** コピー処理 */
   function copy(mode: 'row' | 'col', index: number) {
     rows.update(r => {
+      const newR = r.map(row => [...row]);
       if (mode === 'row') {
-        const copied = [...r[index]];
-        r.splice(index + 1, 0, copied);
+        const copied = [...newR[index]];
+        newR.splice(index + 1, 0, copied);
       } else {
-        for (let i = 0; i < r.length; i++) {
-          const row = [...r[i]];
-          row.splice(index + 1, 0, r[i][index]);
-          r[i] = row;
+        for (let i = 0; i < newR.length; i++) {
+          const row = [...newR[i]];
+          row.splice(index + 1, 0, newR[i][index]);
+          newR[i] = row;
         }
       }
-      return r;
+      return newR;
     });
   }
 </script>
@@ -75,9 +97,10 @@
           <th>
             列 {colIdx + 1}
             <div style="margin-top:4px;">
-              <button on:click={() => insertColumn(colIdx)}>＋</button>
-              <button on:click={() => assignNumbers('col', colIdx)}>採番</button>
-              <button on:click={() => copy('col', colIdx)}>コピー</button>
+              <button title="列を右に挿入" on:click={() => insertColumn(colIdx)}>＋</button>
+              <button title="列を削除" on:click={() => deleteColumn(colIdx)}>−</button>
+              <button title="列採番" on:click={() => assignNumbers('col', colIdx)}>採番</button>
+              <button title="列コピー" on:click={() => copy('col', colIdx)}>コピー</button>
             </div>
           </th>
         {/each}
@@ -90,7 +113,7 @@
     {#each $rows as row, rowIdx}
       <tr>
         {#each row as cell, colIdx}
-          <td>
+          <td style="min-width:100px;">
             <input
               type="text"
               value={cell}
@@ -100,9 +123,12 @@
           </td>
         {/each}
         <td>
-          <button on:click={() => insertRow(rowIdx)}>＋</button>
-          <button on:click={() => assignNumbers('row', rowIdx)}>採番</button>
-          <button on:click={() => copy('row', rowIdx)}>コピー</button>
+          <div>
+            <button title="行を下に挿入" on:click={() => insertRow(rowIdx)}>＋</button>
+            <button title="行を削除" on:click={() => deleteRow(rowIdx)}>−</button>
+            <button title="行採番" on:click={() => assignNumbers('row', rowIdx)}>採番</button>
+            <button title="行コピー" on:click={() => copy('row', rowIdx)}>コピー</button>
+          </div>
         </td>
       </tr>
     {/each}
@@ -111,8 +137,8 @@
 
 <style>
   table { border-collapse: collapse; width: 100%; }
-  th, td { border: 1px solid #ccc; text-align: center; }
-  th { background: #f5f5f5; }
-  input { padding: 2px; font-size: 0.9rem; text-align: center; }
-  button { font-size: 0.75rem; margin: 0 2px; }
+  th, td { border: 1px solid #ccc; text-align: center; vertical-align: middle; }
+  th { background: #f5f5f5; padding: 6px; }
+  input { padding: 4px; font-size: 0.95rem; }
+  button { font-size: 0.75rem; margin: 2px; }
 </style>
