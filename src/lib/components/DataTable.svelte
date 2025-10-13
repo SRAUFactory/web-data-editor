@@ -99,8 +99,8 @@
             <div style="margin-top:4px;">
               <button title="列を右に挿入" on:click={() => insertColumn(colIdx)}>＋</button>
               <button title="列を削除" on:click={() => deleteColumn(colIdx)}>−</button>
-              <button title="列採番" on:click={() => assignNumbers('col', colIdx)}>採番</button>
-              <button title="列コピー" on:click={() => copy('col', colIdx)}>コピー</button>
+              <button title="列採番" on:click={() => assignNumbers('col', colIdx)}>N</button>
+              <button title="列コピー" on:click={() => copy('col', colIdx)}>C</button>
             </div>
           </th>
         {/each}
@@ -126,8 +126,8 @@
           <div>
             <button title="行を下に挿入" on:click={() => insertRow(rowIdx)}>＋</button>
             <button title="行を削除" on:click={() => deleteRow(rowIdx)}>−</button>
-            <button title="行採番" on:click={() => assignNumbers('row', rowIdx)}>採番</button>
-            <button title="行コピー" on:click={() => copy('row', rowIdx)}>コピー</button>
+            <button title="行採番" on:click={() => assignNumbers('row', rowIdx)}>N</button>
+            <button title="行コピー" on:click={() => copy('row', rowIdx)}>C</button>
           </div>
         </td>
       </tr>
