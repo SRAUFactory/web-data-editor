@@ -4,20 +4,22 @@
   import type { FileSettings } from '$lib/types';
   import { get } from 'svelte/store';
 
-  // 新規作成用の行/列数
   let newRowCount = 3;
   let newColCount = 3;
 
-  // 読み込み用の一時設定（UIで選択されたものをそのまま使う）
   let loadFileType: FileSettings['fileType'] = 'CSV';
   let loadLfCode: FileSettings['lfCode'] = 'LF';
   let loadFile: File | null = null;
 
-  // 保存用の設定
   let saveFileType: FileSettings['fileType'] = 'CSV';
   let saveLfCode: FileSettings['lfCode'] = 'LF';
 
-  // 新規作成: 行数/列数から空のテーブルを生成
+  // 🟢 データクリア処理
+  function clearData() {
+    if (!confirm('表の全データを削除します。よろしいですか？')) return;
+    rows.set([]);
+  }
+
   function newFile() {
     const data: string[][] = [];
     for (let i = 0; i < newRowCount; i++) {
@@ -26,10 +28,8 @@
       data.push(row);
     }
     rows.set(data);
-    // fileSettings は新規作成時は変更しない（UI で分離）
   }
 
-  // ファイル読み込み（FileReader を使用）
   function handleFileInput(e: Event) {
     const f = (e.target as HTMLInputElement).files?.[0] ?? null;
     loadFile = f;
@@ -137,28 +137,54 @@
     }
   }
 
-  function saveFileAction() {
+// 🔹 ファイル保存処理（ダイアログ付き）
+  async function saveFileAction() {
     const data = get(rows);
-    if (!data || data.length === 0) {
-      alert('保存するデータがありません');
-      return;
-    }
+    if (!data || data.length === 0) return alert('保存するデータがありません');
     const content = generateFileContent(data, saveFileType, saveLfCode);
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
     const ext = saveFileType === 'JSON' ? 'json' : (saveFileType === 'TSV' ? 'tsv' : 'csv');
     const fileName = `web-data-editor.${ext}`;
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
 
-    // reflect save settings to store
+    try {
+      // showSaveFilePicker は対応ブラウザのみ
+      if ('showSaveFilePicker' in window) {
+        const opts = {
+          suggestedName: fileName,
+          types: [
+            {
+              description: 'Data file',
+              accept: {
+                'text/plain': ['.csv', '.tsv', '.json']
+              }
+            }
+          ]
+        };
+        // @ts-ignore
+        const handle = await window.showSaveFilePicker(opts);
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+      } else {
+        // 非対応ブラウザは従来の Blob ダウンロード方式
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('ファイル保存に失敗しました');
+    }
+
     fileSettings.set({ fileType: saveFileType, lfCode: saveLfCode });
   }
+
+  // 🔹 JSON時は改行コードを選択不可にする
+  $: jsonSelectedForLoad = loadFileType === 'JSON';
+  $: jsonSelectedForSave = saveFileType === 'JSON';
 </script>
 
 <style>
@@ -166,13 +192,21 @@
   .block { border: 1px solid #ddd; padding: 1rem; margin-bottom: 1rem; display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
   .block h2 { margin:0 1rem 0 0; font-size:1rem; }
   label { display:inline-flex; align-items:center; gap:0.5rem; }
-  input[type="file"] { display:inline-block; }
+  .danger { color: #b30000; }
 </style>
 
 <main>
   <h1>Web Data Editor (Svelte版)</h1>
 
-  <!-- 新規作成ブロック: 行数/列数のみ選択可能 -->
+  <!-- 🟢 データクリアボタン -->
+  {#if $rows.length > 0}
+    <div class="block">
+      <h2>データ操作</h2>
+      <button class="danger" on:click={clearData}>データクリア</button>
+    </div>
+  {/if}
+
+  <!-- 新規作成 -->
   <section class="block" aria-labelledby="new-file">
     <h2 id="new-file">新規作成</h2>
     <label>
@@ -194,10 +228,9 @@
     </label>
 
     <button on:click={newFile}>新規作成</button>
-    <!-- その他の項目は新規時に選択不可のため表示しない -->
   </section>
 
-  <!-- 読み込みブロック: fileType / lfCode / ファイル選択 のみ -->
+  <!-- ファイル読み込み -->
   <section class="block" aria-labelledby="load-file">
     <h2 id="load-file">ファイル読み込み</h2>
 
@@ -212,7 +245,7 @@
 
     <label>
       改行コード:
-      <select bind:value={loadLfCode}>
+      <select bind:value={loadLfCode} disabled={jsonSelectedForLoad}>
         <option value="LF">LF</option>
         <option value="CRLF">CR+LF</option>
         <option value="CR">CR</option>
@@ -221,37 +254,38 @@
 
     <label>
       ファイル:
-      <input type="file" accept=".csv,.tsv,.json,text/csv,text/tab-separated-values" on:change={handleFileInput} />
+      <input type="file" accept=".csv,.tsv,.json" on:change={handleFileInput} />
     </label>
 
     <button on:click={loadFileAction}>読み込み</button>
   </section>
 
-  <!-- 保存ブロック: fileType / lfCode のみ -->
-  <section class="block" aria-labelledby="save-file">
-    <h2 id="save-file">ファイル保存</h2>
+  <!-- ファイル保存（🟢 データありの時のみ表示） -->
+  {#if $rows.length > 0}
+    <section class="block" aria-labelledby="save-file">
+      <h2 id="save-file">ファイル保存</h2>
 
-    <label>
-      ファイル形式:
-      <select bind:value={saveFileType}>
-        <option value="CSV">CSV</option>
-        <option value="TSV">TSV</option>
-        <option value="JSON">JSON</option>
-      </select>
-    </label>
+      <label>
+        ファイル形式:
+        <select bind:value={saveFileType}>
+          <option value="CSV">CSV</option>
+          <option value="TSV">TSV</option>
+          <option value="JSON">JSON</option>
+        </select>
+      </label>
 
-    <label>
-      改行コード:
-      <select bind:value={saveLfCode}>
-        <option value="LF">LF</option>
-        <option value="CRLF">CR+LF</option>
-        <option value="CR">CR</option>
-      </select>
-    </label>
+      <label>
+        改行コード:
+        <select bind:value={saveLfCode} disabled={jsonSelectedForSave}>
+          <option value="LF">LF</option>
+          <option value="CRLF">CR+LF</option>
+          <option value="CR">CR</option>
+        </select>
+      </label>
 
-    <button on:click={saveFileAction}>保存 (ダウンロード)</button>
-  </section>
+      <button on:click={saveFileAction}>保存 (ダウンロード)</button>
+    </section>
+  {/if}
 
-  <!-- テーブル表示 -->
   <DataTable />
 </main>
