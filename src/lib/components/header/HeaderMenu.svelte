@@ -3,6 +3,12 @@
   import { rows } from '$lib/stores/editor';
   import { get } from 'svelte/store';
 
+  function clearData() {
+    if (!confirm('表の全データを削除します。よろしいですか？')) return;
+    rows.set([]);
+    selectedMenu.set(null);
+  }
+
   // ボタンクリックで選択を切り替える（同じボタンを押すとトグルで閉じる）
   function toggle(menu: 'new' | 'load' | 'clear' | 'save') {
     const cur = get(selectedMenu);
@@ -54,8 +60,7 @@
 
   <button
     class="menu-btn"
-    class:active={$selectedMenu === 'clear'}
-    on:click={() => toggle('clear')}
+    on:click={clearData}
     type="button"
   >クリア</button>
 
