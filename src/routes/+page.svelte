@@ -10,12 +10,26 @@
 </script>
 
 <style>
-  main { padding: 1rem; max-width: 95%; margin: 0 auto; }
-  .header-container { margin-bottom: 0.5rem; }
+  main {
+    background: #2B66C9; /* 指定のテーマカラー */
+    color: white;
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    padding: 1rem;
+    max-width: 95%;
+    margin: 0 auto;
+  }
+
+  h1 {
+    margin-bottom: 0.5rem;
+  }
+
+  .header-container {
+    margin-bottom: 0.5rem;
+  }
 </style>
 
 <main>
-  <h1>Web Data Editor (Svelte版)</h1>
+  <h1>Web Data Editor</h1>
 
   <div class="header-container">
     <HeaderMenu />
@@ -33,3 +47,4 @@
 
   <DataTable />
 </main>
+

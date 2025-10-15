@@ -144,9 +144,50 @@
 </table>
 
 <style>
-  table { border-collapse: collapse; width: 100%; }
-  th, td { border: 1px solid #ccc; text-align: center; vertical-align: middle; }
-  th { background: #f5f5f5; padding: 6px; }
-  input { padding: 4px; font-size: 0.95rem; }
-  button { font-size: 0.75rem; margin: 2px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    color: #333;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 4px;
+  }
+
+  th {
+    background: #f5f5f5;
+  }
+
+  input {
+    padding: 2px;
+    font-size: 0.9rem;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  /* ボタンを統一サイズ化 */
+  button {
+    width: 32px;
+    height: 28px;
+    font-size: 0.8rem;
+    margin: 1px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    background: #f8f8f8;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #e6e6e6;
+  }
+
+  button:active {
+    background: #dcdcdc;
+  }
 </style>

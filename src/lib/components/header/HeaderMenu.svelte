@@ -19,24 +19,35 @@
 <style>
   .header-menu {
     display: flex;
-    background: #f5f5f5;
-    border-bottom: 1px solid #ccc;
+    background: #1E4A99; /* ← #2B66C9より少し濃く */
+    color: white;
+    border-bottom: 2px solid #17407D;
     padding: 0.4rem 1rem;
     gap: 1rem;
     justify-content: center;
     align-items: center;
   }
+
   .menu-btn {
     background: transparent;
-    border: none;
+    color: white;
+    border: 1px solid transparent;
     padding: 0.45rem 0.9rem;
     cursor: pointer;
     font-weight: 500;
     border-radius: 6px;
+    transition: background 0.15s ease;
   }
+
   .menu-btn.active {
-    background: #ddd;
+    background: #17407D; /* アクティブ状態 */
+    border: 1px solid #13346B;
   }
+
+  .menu-btn:hover {
+    background: #2B66C9; /* ホバー時：ベースカラー */
+  }
+
   .menu-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
