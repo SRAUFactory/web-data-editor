@@ -10,7 +10,7 @@
 </script>
 
 <style>
-  main { padding: 1rem; max-width: 1100px; margin: 0 auto; }
+  main { padding: 1rem; max-width: 95%; margin: 0 auto; }
   .header-container { margin-bottom: 0.5rem; }
 </style>
 
