@@ -18,7 +18,7 @@
     const cols = current[0]?.length ?? 0;
     const newRow = Array(cols).fill('');
     rows.update(r => {
-      const newArr = r.map(row => [...row]);
+      const newArr = [...r];
       const insertIndex = position === 'before' ? afterIdx : afterIdx + 1;
       newArr.splice(insertIndex, 0, newRow);
       return newArr;
@@ -38,20 +38,22 @@
   }
 
   /** 行削除 */
-  function deleteRow(idx: number) {
+  function deleteRow(index: number) {
     rows.update(r => {
-      const newArr = r.map(row => [...row]);
-      newArr.splice(idx, 1);
+      if (r.length <= 1) return r; // 最低1行は残す
+      const newArr = [...r];
+      newArr.splice(index, 1);
       return newArr;
     });
   }
 
   /** 列削除 */
-  function deleteColumn(idx: number) {
+  function deleteColumn(index: number) {
     rows.update(r => {
+      if (r[0]?.length <= 1) return r; // 最低1列は残す
       return r.map(row => {
         const newRow = [...row];
-        newRow.splice(idx, 1);
+        newRow.splice(index, 1);
         return newRow;
       });
     });
@@ -95,18 +97,17 @@
   <thead>
     {#if $rows.length > 0}
       <tr>
-        <th>
-          <!-- 先頭列の前に挿入 -->
-          <button on:click={() => insertColumn(0, 'before')}>＋</button>
-        </th>
         {#each $rows[0] as _, colIdx}
           <th>
             列 {colIdx + 1}
             <div style="margin-top:4px;">
-              <button on:click={() => insertColumn(colIdx, 'before')}>←＋</button>
-              <button on:click={() => insertColumn(colIdx, 'after')}>＋→</button>
-              <button on:click={() => assignNumbers('col', colIdx)}>採番</button>
-              <button on:click={() => copy('col', colIdx)}>コピー</button>
+              {#if colIdx === 0}
+                <button on:click={() => insertColumn(0, 'before')}>＋</button>
+              {/if}
+              <button on:click={() => insertColumn(colIdx)}>＋</button>
+              <button on:click={() => deleteColumn(colIdx)}>-</button>
+              <button on:click={() => assignNumbers('col', colIdx)}>N</button>
+              <button on:click={() => copy('col', colIdx)}>C</button>
             </div>
           </th>
         {/each}
@@ -118,12 +119,6 @@
   <tbody>
     {#each $rows as row, rowIdx}
       <tr>
-        <!-- 行の先頭挿入 -->
-        <td>
-          {#if rowIdx === 0}
-            <button on:click={() => insertRow(0, 'before')}>＋</button>
-          {/if}
-        </td>
         {#each row as cell, colIdx}
           <td>
             <input
@@ -135,10 +130,13 @@
           </td>
         {/each}
         <td>
-          <button on:click={() => insertRow(rowIdx, 'before')}>↑＋</button>
-          <button on:click={() => insertRow(rowIdx, 'after')}>＋↓</button>
-          <button on:click={() => assignNumbers('row', rowIdx)}>採番</button>
-          <button on:click={() => copy('row', rowIdx)}>コピー</button>
+          {#if rowIdx === 0}
+            <button on:click={() => insertRow(0, 'before')}>＋</button>
+          {/if}
+          <button on:click={() => insertRow(rowIdx)}>＋</button>
+          <button on:click={() => deleteRow(rowIdx)}>-</button>
+          <button on:click={() => assignNumbers('row', rowIdx)}>N</button>
+          <button on:click={() => copy('row', rowIdx)}>C</button>
         </td>
       </tr>
     {/each}
