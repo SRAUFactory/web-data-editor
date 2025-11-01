@@ -5,6 +5,7 @@
   import HeaderClearData from '$lib/components/header/HeaderClearData.svelte';
   import HeaderSaveFile from '$lib/components/header/HeaderSaveFile.svelte';
   import DataTable from '$lib/components/DataTable.svelte';
+  import ManualViewer from '$lib/components/manual/ManualViewer.svelte';
   import { selectedMenu } from '$lib/stores/ui';
   import { rows } from '$lib/stores/editor';
 </script>
@@ -45,6 +46,10 @@
     {/if}
   </div>
 
-  <DataTable />
+  {#if $selectedMenu === 'manual'}
+    <ManualViewer />
+  {:else}
+    <DataTable />
+  {/if}
 </main>
 

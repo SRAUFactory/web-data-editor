@@ -10,7 +10,7 @@
   }
 
   // ボタンクリックで選択を切り替える（同じボタンを押すとトグルで閉じる）
-  function toggle(menu: 'new' | 'load' | 'clear' | 'save') {
+  function toggle(menu: 'new' | 'load' | 'clear' | 'save' | 'manual') {
     const cur = get(selectedMenu);
     selectedMenu.set(cur === menu ? null : menu);
   }
@@ -68,6 +68,13 @@
     on:click={() => toggle('load')}
     type="button"
   >ファイル読み込み</button>
+
+  <button
+    class="menu-btn"
+    class:active={$selectedMenu === 'manual'}
+    on:click={() => toggle('manual')}
+    type="button"
+  >マニュアル</button>
 
   <button
     class="menu-btn"
