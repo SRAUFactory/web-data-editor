@@ -32,20 +32,20 @@
     box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   }
 
-  .manual-wrapper h1,
-  .manual-wrapper h2,
-  .manual-wrapper h3 {
+  :global(.manual-wrapper h1),
+  :global(.manual-wrapper h2),
+  :global(.manual-wrapper h3) {
     color: #1E4A99;
   }
 
-  .manual-wrapper pre {
+  :global(.manual-wrapper pre) {
     background: #f6f8fa;
     padding: 0.75rem;
     border-radius: 6px;
     overflow: auto;
   }
 
-  .manual-wrapper code {
+  :global(.manual-wrapper code) {
     background: rgba(27,31,35,0.05);
     padding: 0.12rem 0.3rem;
     border-radius: 4px;
