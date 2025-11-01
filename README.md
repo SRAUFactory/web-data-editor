@@ -1,18 +1,16 @@
-# sv
+# web-data-editor
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Web-based data editing tool built with SvelteKit. Allows easy creation and editing of CSV/TSV/JSON data files.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
+* Create new csv/tsv/json data
+* Edit existing csv/tsv/json files
+  * Add/Delete rows and columns
+  * Edit cell values
+  * Convert between formats
+* Save and download edited data
+* Built-in user manual
 
 ## Developing
 
@@ -25,14 +23,40 @@ npm run dev
 npm run dev -- --open
 ```
 
-## Building
+## Deployment
 
-To create a production version of your app:
+This project is automatically deployed to GitHub Pages using GitHub Actions.
 
-```sh
-npm run build
+### Development Setup
+
+1. Install dependencies:
+```bash
+npm install
 ```
 
-You can preview the production build with `npm run preview`.
+2. Start development server:
+```bash
+npm run dev
+```
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+### Production Build
+
+To create and preview a production build locally:
+
+```bash
+npm run build
+npm run preview
+```
+
+### GitHub Pages Deployment
+
+The project is automatically deployed to GitHub Pages when changes are pushed to the `master` branch. The deployment process:
+
+1. Builds the project using `adapter-static`
+2. Deploys to GitHub Pages via GitHub Actions
+3. Available at: https://sraufactory.github.io/web-data-editor/
+
+To manually trigger a deployment:
+1. Go to Actions tab in GitHub
+2. Select "Deploy to GitHub Pages" workflow
+3. Click "Run workflow"

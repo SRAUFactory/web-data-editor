@@ -7,7 +7,7 @@
 
   onMount(async () => {
     try {
-      const res = await fetch('/manual/README.md');
+      const res = await fetch('/web-data-editor/manual/README.md');
       if (!res.ok) {
         md = '# マニュアルを読み込めませんでした\n\nファイルが存在するか確認してください。';
       } else {
