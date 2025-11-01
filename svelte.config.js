@@ -10,7 +10,14 @@ const config = {
 	kit: {
 		// adapter-static for GitHub Pages
 		adapter: adapter({
+<<<<<<< Updated upstream
 			fallback: 'index.html', // SPA mode
+=======
+			pages: 'build',
+			assets: 'build',
+			fallback: 'index.html', // SPA mode
+			precompress: false,
+>>>>>>> Stashed changes
 			strict: false
 		}),
 		paths: {
