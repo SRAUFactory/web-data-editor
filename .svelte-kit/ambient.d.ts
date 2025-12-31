@@ -40,7 +40,6 @@ declare module '$env/static/private' {
 	export const npm_config_global_prefix: string;
 	export const VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 	export const TERM_PROGRAM_VERSION: string;
-	export const ORIGINAL_XDG_CURRENT_DESKTOP: string;
 	export const ZDOTDIR: string;
 	export const MallocNanoZone: string;
 	export const COLOR: string;
@@ -92,6 +91,7 @@ declare module '$env/static/private' {
 	export const INFOPATH: string;
 	export const GIT_ASKPASS: string;
 	export const VSCODE_GIT_ASKPASS_NODE: string;
+	export const OSLogRateLimit: string;
 	export const npm_node_execpath: string;
 	export const npm_config_prefix: string;
 	export const COLORTERM: string;
@@ -140,7 +140,6 @@ declare module '$env/dynamic/private' {
 		npm_config_global_prefix: string;
 		VSCODE_PYTHON_AUTOACTIVATE_GUARD: string;
 		TERM_PROGRAM_VERSION: string;
-		ORIGINAL_XDG_CURRENT_DESKTOP: string;
 		ZDOTDIR: string;
 		MallocNanoZone: string;
 		COLOR: string;
@@ -192,6 +191,7 @@ declare module '$env/dynamic/private' {
 		INFOPATH: string;
 		GIT_ASKPASS: string;
 		VSCODE_GIT_ASKPASS_NODE: string;
+		OSLogRateLimit: string;
 		npm_node_execpath: string;
 		npm_config_prefix: string;
 		COLORTERM: string;
