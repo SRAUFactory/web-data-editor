@@ -82,10 +82,12 @@ declare module '$env/static/private' {
 	export const PYTHON_BASIC_REPL: string;
 	export const HOMEBREW_PREFIX: string;
 	export const ASDF_DATA_DIR: string;
+	export const GK_GL_ADDR: string;
 	export const npm_config_cache: string;
 	export const LOGNAME: string;
 	export const npm_lifecycle_script: string;
 	export const VSCODE_GIT_IPC_HANDLE: string;
+	export const GK_GL_PATH: string;
 	export const npm_config_user_agent: string;
 	export const HOMEBREW_CELLAR: string;
 	export const INFOPATH: string;
@@ -182,10 +184,12 @@ declare module '$env/dynamic/private' {
 		PYTHON_BASIC_REPL: string;
 		HOMEBREW_PREFIX: string;
 		ASDF_DATA_DIR: string;
+		GK_GL_ADDR: string;
 		npm_config_cache: string;
 		LOGNAME: string;
 		npm_lifecycle_script: string;
 		VSCODE_GIT_IPC_HANDLE: string;
+		GK_GL_PATH: string;
 		npm_config_user_agent: string;
 		HOMEBREW_CELLAR: string;
 		INFOPATH: string;

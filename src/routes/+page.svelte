@@ -2,7 +2,6 @@
   import HeaderMenu from '$lib/components/header/HeaderMenu.svelte';
   import HeaderNewFile from '$lib/components/header/HeaderNewFile.svelte';
   import HeaderLoadFile from '$lib/components/header/HeaderLoadFile.svelte';
-  import HeaderClearData from '$lib/components/header/HeaderClearData.svelte';
   import HeaderSaveFile from '$lib/components/header/HeaderSaveFile.svelte';
   import DataTable from '$lib/components/DataTable.svelte';
   import ManualViewer from '$lib/components/manual/ManualViewer.svelte';
@@ -39,8 +38,6 @@
       <HeaderNewFile />
     {:else if $selectedMenu === 'load'}
       <HeaderLoadFile />
-    {:else if $selectedMenu === 'clear'}
-      <HeaderClearData />
     {:else if $selectedMenu === 'save'}
       <HeaderSaveFile />
     {/if}
