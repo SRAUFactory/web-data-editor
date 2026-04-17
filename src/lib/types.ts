@@ -9,8 +9,8 @@ export type Row = string[][];
  * ファイル設定情報
  */
 export interface FileSettings {
-  /** ファイル形式 (CSV / TSV / JSON) */
-  fileType: 'CSV' | 'TSV' | 'JSON';
-  /** 改行コード (CRLF / LF / CR) */
-  lfCode: 'CRLF' | 'LF' | 'CR';
+	/** ファイル形式 (CSV / TSV / JSON) */
+	fileType: 'CSV' | 'TSV' | 'JSON';
+	/** 改行コード (CRLF / LF / CR) */
+	lfCode: 'CRLF' | 'LF' | 'CR';
 }

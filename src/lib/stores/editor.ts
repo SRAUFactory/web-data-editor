@@ -7,6 +7,6 @@ export const rows = writable<Row>([]);
 
 /** ファイル設定 */
 export const fileSettings = writable<FileSettings>({
-  fileType: 'CSV',
-  lfCode: 'LF'
+	fileType: 'CSV',
+	lfCode: 'LF'
 });

@@ -7,3 +7,6 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Ignore markdown files from prettier lint
+**/*.md
