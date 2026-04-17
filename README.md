@@ -35,6 +35,8 @@ This project is automatically deployed to GitHub Pages using GitHub Actions.
 pnpm install
 ```
 
+> If you use `asdf`, make sure the `pnpm` plugin is installed and then run `asdf install`.
+
 2. Start development server:
 
 ```bash
