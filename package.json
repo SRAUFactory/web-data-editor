@@ -36,9 +36,11 @@
 	},
 	"dependencies": {
 		"marked": "^5.1.1"
-	}
-	,
-	"overrides": {
-		"cookie": "1.0.2"
+	},
+	"packageManager": "pnpm@10.33.0",
+	"pnpm": {
+		"overrides": {
+			"cookie": "1.0.2"
+		}
 	}
 }
