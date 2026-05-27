@@ -18,7 +18,9 @@
 		}
 
 		// convert markdown to HTML
-		html = marked.parse(md);
+		// marked の `mangle` / `headerIds` がデフォルトで有効になっており
+		// deprecated 警告が出るため明示的に無効化する
+		html = marked.parse(md, { mangle: false, headerIds: false });
 	});
 </script>
 
