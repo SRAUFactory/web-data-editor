@@ -1,7 +1,5 @@
-import { X as attr_class, W as attr, Y as store_get, Z as unsubscribe_stores, _ as ensure_array_like } from "../../chunks/index2.js";
+import { a6 as attr_class, a7 as store_get, a as attr, a8 as unsubscribe_stores, a9 as ensure_array_like, e as escape_html } from "../../chunks/renderer.js";
 import { w as writable } from "../../chunks/index.js";
-import { e as escape_html } from "../../chunks/context.js";
-import "clsx";
 import "marked";
 function html(value) {
   var html2 = String(value);
@@ -32,7 +30,7 @@ function HeaderNewFile($$renderer, $$props) {
     $$renderer2.push(`<div class="form svelte-1gsgfnb" role="region" aria-label="新規作成フォーム"><label class="svelte-1gsgfnb">行数: `);
     $$renderer2.select({ value: newRowCount }, ($$renderer3) => {
       $$renderer3.push(`<!--[-->`);
-      const each_array = ensure_array_like(Array(50).fill(0).map((_, i) => i + 1));
+      const each_array = ensure_array_like(Array(50).fill(0).map((_, _i) => _i + 1));
       for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
         let n = each_array[$$index];
         $$renderer3.option({ value: n }, ($$renderer4) => {
@@ -44,7 +42,7 @@ function HeaderNewFile($$renderer, $$props) {
     $$renderer2.push(`</label> <label class="svelte-1gsgfnb">列数: `);
     $$renderer2.select({ value: newColCount }, ($$renderer3) => {
       $$renderer3.push(`<!--[-->`);
-      const each_array_1 = ensure_array_like(Array(50).fill(0).map((_, i) => i + 1));
+      const each_array_1 = ensure_array_like(Array(50).fill(0).map((_, _i) => _i + 1));
       for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
         let n = each_array_1[$$index_1];
         $$renderer3.option({ value: n }, ($$renderer4) => {
@@ -87,18 +85,13 @@ function HeaderLoadFile($$renderer, $$props) {
     $$renderer2.push(`</label> <label class="svelte-1t188ul">ファイル: <input type="file" accept=".csv,.tsv,.json"/></label> <button type="button">読み込み</button></div>`);
   });
 }
-function HeaderClearData($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    $$renderer2.push(`<div class="form svelte-1ocpd9o" role="region" aria-label="データクリア"><button class="danger svelte-1ocpd9o" type="button">データクリア</button></div>`);
-  });
-}
 function HeaderSaveFile($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     var $$store_subs;
     let saveFileType = "CSV";
     let saveLfCode = "LF";
     if (store_get($$store_subs ??= {}, "$rows", rows).length > 0) {
-      $$renderer2.push("<!--[-->");
+      $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<div class="form svelte-110srqk" role="region" aria-label="ファイル保存フォーム"><label class="svelte-110srqk">ファイル形式: `);
       $$renderer2.select({ value: saveFileType }, ($$renderer3) => {
         $$renderer3.option({ value: "CSV" }, ($$renderer4) => {
@@ -125,7 +118,7 @@ function HeaderSaveFile($$renderer, $$props) {
       });
       $$renderer2.push(`</label> <button type="button">保存 (ダウンロード)</button></div>`);
     } else {
-      $$renderer2.push("<!--[!-->");
+      $$renderer2.push("<!--[-1-->");
     }
     $$renderer2.push(`<!--]-->`);
     if ($$store_subs) unsubscribe_stores($$store_subs);
@@ -136,23 +129,23 @@ function DataTable($$renderer, $$props) {
     var $$store_subs;
     $$renderer2.push(`<table border="1" cellpadding="4" cellspacing="0" class="svelte-16k18c8"><thead>`);
     if (store_get($$store_subs ??= {}, "$rows", rows).length > 0) {
-      $$renderer2.push("<!--[-->");
+      $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<tr><!--[-->`);
       const each_array = ensure_array_like(store_get($$store_subs ??= {}, "$rows", rows)[0]);
       for (let colIdx = 0, $$length = each_array.length; colIdx < $$length; colIdx++) {
         each_array[colIdx];
         $$renderer2.push(`<th class="svelte-16k18c8">列 ${escape_html(colIdx + 1)} <div style="margin-top:4px;">`);
         if (colIdx === 0) {
-          $$renderer2.push("<!--[-->");
+          $$renderer2.push("<!--[0-->");
           $$renderer2.push(`<button class="svelte-16k18c8">＋</button>`);
         } else {
-          $$renderer2.push("<!--[!-->");
+          $$renderer2.push("<!--[-1-->");
         }
         $$renderer2.push(`<!--]--> <button class="svelte-16k18c8">＋</button> <button class="svelte-16k18c8">-</button> <button class="svelte-16k18c8">N</button> <button class="svelte-16k18c8">C</button></div></th>`);
       }
       $$renderer2.push(`<!--]--><th class="svelte-16k18c8">行操作</th></tr>`);
     } else {
-      $$renderer2.push("<!--[!-->");
+      $$renderer2.push("<!--[-1-->");
     }
     $$renderer2.push(`<!--]--></thead><tbody><!--[-->`);
     const each_array_1 = ensure_array_like(store_get($$store_subs ??= {}, "$rows", rows));
@@ -166,10 +159,10 @@ function DataTable($$renderer, $$props) {
       }
       $$renderer2.push(`<!--]--><td class="svelte-16k18c8">`);
       if (rowIdx === 0) {
-        $$renderer2.push("<!--[-->");
+        $$renderer2.push("<!--[0-->");
         $$renderer2.push(`<button class="svelte-16k18c8">＋</button>`);
       } else {
-        $$renderer2.push("<!--[!-->");
+        $$renderer2.push("<!--[-1-->");
       }
       $$renderer2.push(`<!--]--> <button class="svelte-16k18c8">＋</button> <button class="svelte-16k18c8">-</button> <button class="svelte-16k18c8">N</button> <button class="svelte-16k18c8">C</button></td></tr>`);
     }
@@ -189,38 +182,23 @@ function _page($$renderer) {
   HeaderMenu($$renderer);
   $$renderer.push(`<!----> `);
   if (store_get($$store_subs ??= {}, "$selectedMenu", selectedMenu) === "new") {
-    $$renderer.push("<!--[-->");
+    $$renderer.push("<!--[0-->");
     HeaderNewFile($$renderer);
+  } else if (store_get($$store_subs ??= {}, "$selectedMenu", selectedMenu) === "load") {
+    $$renderer.push("<!--[1-->");
+    HeaderLoadFile($$renderer);
+  } else if (store_get($$store_subs ??= {}, "$selectedMenu", selectedMenu) === "save") {
+    $$renderer.push("<!--[2-->");
+    HeaderSaveFile($$renderer);
   } else {
-    $$renderer.push("<!--[!-->");
-    if (store_get($$store_subs ??= {}, "$selectedMenu", selectedMenu) === "load") {
-      $$renderer.push("<!--[-->");
-      HeaderLoadFile($$renderer);
-    } else {
-      $$renderer.push("<!--[!-->");
-      if (store_get($$store_subs ??= {}, "$selectedMenu", selectedMenu) === "clear") {
-        $$renderer.push("<!--[-->");
-        HeaderClearData($$renderer);
-      } else {
-        $$renderer.push("<!--[!-->");
-        if (store_get($$store_subs ??= {}, "$selectedMenu", selectedMenu) === "save") {
-          $$renderer.push("<!--[-->");
-          HeaderSaveFile($$renderer);
-        } else {
-          $$renderer.push("<!--[!-->");
-        }
-        $$renderer.push(`<!--]-->`);
-      }
-      $$renderer.push(`<!--]-->`);
-    }
-    $$renderer.push(`<!--]-->`);
+    $$renderer.push("<!--[-1-->");
   }
   $$renderer.push(`<!--]--></div> `);
   if (store_get($$store_subs ??= {}, "$selectedMenu", selectedMenu) === "manual") {
-    $$renderer.push("<!--[-->");
+    $$renderer.push("<!--[0-->");
     ManualViewer($$renderer);
   } else {
-    $$renderer.push("<!--[!-->");
+    $$renderer.push("<!--[-1-->");
     DataTable($$renderer);
   }
   $$renderer.push(`<!--]--></main>`);

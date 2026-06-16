@@ -30,9 +30,9 @@ function make_trackable(url, callback, search_params_callback, allow_hash = fals
     value: new Proxy(tracked.searchParams, {
       get(obj, key) {
         if (key === "get" || key === "getAll" || key === "has") {
-          return (param) => {
+          return (param, ...rest) => {
             search_params_callback(param);
-            return obj[key](param);
+            return obj[key](param, ...rest);
           };
         }
         callback();
@@ -56,10 +56,10 @@ function make_trackable(url, callback, search_params_callback, allow_hash = fals
     });
   }
   {
-    tracked[Symbol.for("nodejs.util.inspect.custom")] = (depth, opts, inspect) => {
+    tracked[/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")] = (_depth, opts, inspect) => {
       return inspect(url, opts);
     };
-    tracked.searchParams[Symbol.for("nodejs.util.inspect.custom")] = (depth, opts, inspect) => {
+    tracked.searchParams[/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")] = (_depth, opts, inspect) => {
       return inspect(url.searchParams, opts);
     };
   }
@@ -90,7 +90,7 @@ function disable_search(url) {
 }
 function allow_nodejs_console_log(url) {
   {
-    url[Symbol.for("nodejs.util.inspect.custom")] = (depth, opts, inspect) => {
+    url[/* @__PURE__ */ Symbol.for("nodejs.util.inspect.custom")] = (_depth, opts, inspect) => {
       return inspect(new URL(url), opts);
     };
   }

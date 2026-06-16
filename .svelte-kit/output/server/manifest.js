@@ -7,10 +7,10 @@ function __memo(fn) {
 return {
 	appDir: "_app",
 	appPath: "web-data-editor/_app",
-	assets: new Set(["data/sample-cr.csv","data/sample-cr.tsv","data/sample-crlf.csv","data/sample-crlf.tsv","data/sample-html-tag.csv","data/sample-jp.csv","data/sample-lf.csv","data/sample-lf.tsv","manual/README.md","robots.txt"]),
+	assets: new Set([".DS_Store","data/sample-cr.csv","data/sample-cr.tsv","data/sample-crlf.csv","data/sample-crlf.tsv","data/sample-html-tag.csv","data/sample-jp.csv","data/sample-lf.csv","data/sample-lf.tsv","manual/README.md","robots.txt"]),
 	mimeTypes: {".csv":"text/csv",".tsv":"text/tab-separated-values",".md":"text/markdown",".txt":"text/plain"},
 	_: {
-		client: {start:"_app/immutable/entry/start.D1MrOQoT.js",app:"_app/immutable/entry/app.bW_yQQb-.js",imports:["_app/immutable/entry/start.D1MrOQoT.js","_app/immutable/chunks/DSmCpE-H.js","_app/immutable/chunks/CX933YLL.js","_app/immutable/chunks/YlS-LsS1.js","_app/immutable/entry/app.bW_yQQb-.js","_app/immutable/chunks/CX933YLL.js","_app/immutable/chunks/CspQIuo1.js","_app/immutable/chunks/-mkTHCd8.js","_app/immutable/chunks/YlS-LsS1.js","_app/immutable/chunks/UrSumk1e.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.D-akVv-g.js",app:"_app/immutable/entry/app.Ds0CTPBd.js",imports:["_app/immutable/entry/start.D-akVv-g.js","_app/immutable/chunks/BtQVbYE_.js","_app/immutable/chunks/B5ZgiZbS.js","_app/immutable/chunks/DkQtkS4R.js","_app/immutable/entry/app.Ds0CTPBd.js","_app/immutable/chunks/B5ZgiZbS.js","_app/immutable/chunks/BCWybtCP.js","_app/immutable/chunks/72RV6grz.js","_app/immutable/chunks/DkQtkS4R.js","_app/immutable/chunks/4MYxifgD.js","_app/immutable/chunks/ToX4QQL-.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),

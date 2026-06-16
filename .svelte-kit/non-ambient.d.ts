@@ -26,6 +26,8 @@ export {};
 
 
 declare module "$app/types" {
+	type MatcherParam<M> = M extends (param : string) => param is (infer U extends string) ? U : string;
+
 	export interface AppTypes {
 		RouteId(): "/";
 		RouteParams(): {
@@ -36,6 +38,6 @@ declare module "$app/types" {
 		};
 		Pathname(): "/";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/data/sample-cr.csv" | "/data/sample-cr.tsv" | "/data/sample-crlf.csv" | "/data/sample-crlf.tsv" | "/data/sample-html-tag.csv" | "/data/sample-jp.csv" | "/data/sample-lf.csv" | "/data/sample-lf.tsv" | "/manual/README.md" | "/robots.txt" | string & {};
+		Asset(): "/.DS_Store" | "/data/sample-cr.csv" | "/data/sample-cr.tsv" | "/data/sample-crlf.csv" | "/data/sample-crlf.tsv" | "/data/sample-html-tag.csv" | "/data/sample-jp.csv" | "/data/sample-lf.csv" | "/data/sample-lf.tsv" | "/manual/README.md" | "/robots.txt" | string & {};
 	}
 }
