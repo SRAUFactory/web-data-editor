@@ -56,7 +56,6 @@ declare module '$env/static/private' {
 	export const ZDOTDIR: string;
 	export const ASDF_DEFAULT_TOOL_VERSIONS_FILENAME: string;
 	export const PNPM_HOME: string;
-	export const COPILOT_DEBUG_NONCE: string;
 	export const USER: string;
 	export const COMMAND_MODE: string;
 	export const PNPM_SCRIPT_SRC_DIR: string;
@@ -75,7 +74,6 @@ declare module '$env/static/private' {
 	export const LANG: string;
 	export const ASDF_CONFIG_FILE: string;
 	export const npm_package_name: string;
-	export const PYTHONSTARTUP: string;
 	export const NODE_PATH: string;
 	export const XPC_FLAGS: string;
 	export const VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
@@ -83,11 +81,11 @@ declare module '$env/static/private' {
 	export const XPC_SERVICE_NAME: string;
 	export const npm_package_version: string;
 	export const pnpm_config_verify_deps_before_run: string;
+	export const ANTIGRAVITY_CLI_ALIAS: string;
 	export const VSCODE_INJECTION: string;
 	export const HOME: string;
 	export const SHLVL: string;
 	export const VSCODE_GIT_ASKPASS_MAIN: string;
-	export const PYTHON_BASIC_REPL: string;
 	export const HOMEBREW_PREFIX: string;
 	export const ASDF_DATA_DIR: string;
 	export const LOGNAME: string;
@@ -206,7 +204,6 @@ declare module '$env/dynamic/private' {
 		ZDOTDIR: string;
 		ASDF_DEFAULT_TOOL_VERSIONS_FILENAME: string;
 		PNPM_HOME: string;
-		COPILOT_DEBUG_NONCE: string;
 		USER: string;
 		COMMAND_MODE: string;
 		PNPM_SCRIPT_SRC_DIR: string;
@@ -225,7 +222,6 @@ declare module '$env/dynamic/private' {
 		LANG: string;
 		ASDF_CONFIG_FILE: string;
 		npm_package_name: string;
-		PYTHONSTARTUP: string;
 		NODE_PATH: string;
 		XPC_FLAGS: string;
 		VSCODE_GIT_ASKPASS_EXTRA_ARGS: string;
@@ -233,11 +229,11 @@ declare module '$env/dynamic/private' {
 		XPC_SERVICE_NAME: string;
 		npm_package_version: string;
 		pnpm_config_verify_deps_before_run: string;
+		ANTIGRAVITY_CLI_ALIAS: string;
 		VSCODE_INJECTION: string;
 		HOME: string;
 		SHLVL: string;
 		VSCODE_GIT_ASKPASS_MAIN: string;
-		PYTHON_BASIC_REPL: string;
 		HOMEBREW_PREFIX: string;
 		ASDF_DATA_DIR: string;
 		LOGNAME: string;

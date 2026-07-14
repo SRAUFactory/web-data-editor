@@ -3,7 +3,7 @@
 	import { selectedMenu } from '$lib/stores/ui';
 	import type { FileSettings } from '$lib/types';
 
-	let loadFileType: FileSettings['fileType'] = 'CSV';
+	let loadFileType: Exclude<FileSettings['fileType'], 'Markdown'> = 'CSV';
 	let loadLfCode: FileSettings['lfCode'] = 'LF';
 	let loadFile: File | null = null;
 
