@@ -1,6 +1,6 @@
 import "./chunks/root.js";
-import { s, e, f } from "./chunks/environment.js";
-import { g, o, c, s as s2, a, b } from "./chunks/internal.js";
+import { s, e, f } from "./chunks/internal.js";
+import { g, o, c, s as s2, a, b } from "./chunks/internal2.js";
 export {
   g as get_hooks,
   o as options,

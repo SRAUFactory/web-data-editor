@@ -1,5 +1,5 @@
-import { a6 as attr_class, a7 as store_get, a as attr, a8 as unsubscribe_stores, a9 as ensure_array_like, e as escape_html } from "../../chunks/renderer.js";
-import { w as writable } from "../../chunks/index.js";
+import { a6 as attr_class, a7 as store_get, a as attr, a8 as unsubscribe_stores, a9 as ensure_array_like, e as escape_html } from "../../chunks/index2.js";
+import { w as writable, g as get } from "../../chunks/index.js";
 import "marked";
 function html(value) {
   var html2 = String(value);
@@ -8,6 +8,10 @@ function html(value) {
 }
 const selectedMenu = writable(null);
 const rows = writable([]);
+const fileSettings = writable({
+  fileType: "CSV",
+  lfCode: "LF"
+});
 function HeaderMenu($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     var $$store_subs;
@@ -88,8 +92,9 @@ function HeaderLoadFile($$renderer, $$props) {
 function HeaderSaveFile($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     var $$store_subs;
-    let saveFileType = "CSV";
-    let saveLfCode = "LF";
+    const settings = get(fileSettings);
+    let saveFileType = settings.fileType || "CSV";
+    let saveLfCode = settings.lfCode || "LF";
     if (store_get($$store_subs ??= {}, "$rows", rows).length > 0) {
       $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<div class="form svelte-110srqk" role="region" aria-label="ファイル保存フォーム"><label class="svelte-110srqk">ファイル形式: `);
@@ -103,8 +108,18 @@ function HeaderSaveFile($$renderer, $$props) {
         $$renderer3.option({ value: "JSON" }, ($$renderer4) => {
           $$renderer4.push(`JSON`);
         });
+        $$renderer3.option({ value: "Markdown" }, ($$renderer4) => {
+          $$renderer4.push(`Markdown`);
+        });
       });
-      $$renderer2.push(`</label> <label class="svelte-110srqk">改行コード: `);
+      $$renderer2.push(`</label> `);
+      if (saveFileType === "Markdown") {
+        $$renderer2.push("<!--[0-->");
+        $$renderer2.push(`<span class="info-text svelte-110srqk">※ 1行目のデータがヘッダー（見出し）として出力されます</span>`);
+      } else {
+        $$renderer2.push("<!--[-1-->");
+      }
+      $$renderer2.push(`<!--]--> <label class="svelte-110srqk">改行コード: `);
       $$renderer2.select({ value: saveLfCode, disabled: saveFileType === "JSON" }, ($$renderer3) => {
         $$renderer3.option({ value: "LF" }, ($$renderer4) => {
           $$renderer4.push(`LF`);
@@ -116,7 +131,14 @@ function HeaderSaveFile($$renderer, $$props) {
           $$renderer4.push(`CR`);
         });
       });
-      $$renderer2.push(`</label> <button type="button">保存 (ダウンロード)</button></div>`);
+      $$renderer2.push(`</label> <button type="button" class="svelte-110srqk">保存 (ダウンロード)</button> `);
+      if (saveFileType === "Markdown") {
+        $$renderer2.push("<!--[0-->");
+        $$renderer2.push(`<button type="button" class="copy-btn svelte-110srqk">${escape_html("クリップボードにコピー")}</button>`);
+      } else {
+        $$renderer2.push("<!--[-1-->");
+      }
+      $$renderer2.push(`<!--]--></div>`);
     } else {
       $$renderer2.push("<!--[-1-->");
     }

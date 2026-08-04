@@ -1,8 +1,7 @@
 import { json, text } from "@sveltejs/kit";
 import { SvelteKitError, HttpError } from "@sveltejs/kit/internal";
 import { with_request_store } from "@sveltejs/kit/internal/server";
-import { t as text_encoder, b as base64_encode, a as base64_decode } from "./utils.js";
-import { U as UNDEFINED, N as NAN, P as POSITIVE_INFINITY, a as NEGATIVE_INFINITY, b as NEGATIVE_ZERO, S as SPARSE, i as is_valid_array_len, M as MAX_ARRAY_INDEX, c as is_valid_array_index, H as HOLE, D as DevalueError, d as is_primitive, g as get_type, e as is_plain_object$1, f as enumerable_symbols, s as stringify_key, h as stringify_string, v as valid_array_indices, j as experimental_async_required, k as get_render_context, u as uneval, l as hydratable_serialization_failed } from "./render-context.js";
+import { a as base64_decode, t as text_encoder, b as base64_encode } from "./utils.js";
 function noop() {
 }
 function once(fn) {
@@ -18,6 +17,715 @@ const SVELTE_KIT_ASSETS = "/_svelte_kit_assets";
 const ENDPOINT_METHODS = ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"];
 const MUTATIVE_METHODS = ["POST", "PUT", "PATCH", "DELETE"];
 const PAGE_METHODS = ["GET", "POST", "HEAD"];
+var defaultParseOptions = {
+  decodeValues: true,
+  map: false,
+  silent: false,
+  split: "auto"
+  // auto = split strings but not arrays
+};
+function isForbiddenKey(key) {
+  return typeof key !== "string" || key in {};
+}
+function createNullObj() {
+  return /* @__PURE__ */ Object.create(null);
+}
+function isNonEmptyString(str) {
+  return typeof str === "string" && !!str.trim();
+}
+function parseString(setCookieValue, options) {
+  var parts = setCookieValue.split(";").filter(isNonEmptyString);
+  var nameValuePairStr = parts.shift();
+  if (!nameValuePairStr) {
+    return null;
+  }
+  var parsed = parseNameValuePair(nameValuePairStr);
+  var name = parsed.name;
+  var value = parsed.value;
+  options = options ? Object.assign({}, defaultParseOptions, options) : defaultParseOptions;
+  if (isForbiddenKey(name)) {
+    return null;
+  }
+  try {
+    value = options.decodeValues ? decodeURIComponent(value) : value;
+  } catch (e) {
+    console.error(
+      "set-cookie-parser: failed to decode cookie value. Set options.decodeValues=false to disable decoding.",
+      e
+    );
+  }
+  var cookie = createNullObj();
+  cookie.name = name;
+  cookie.value = value;
+  parts.forEach(function(part) {
+    var sides = part.split("=");
+    var key = sides.shift().trim().toLowerCase();
+    if (isForbiddenKey(key)) {
+      return;
+    }
+    var value2 = sides.join("=").trim();
+    if (key === "expires") {
+      cookie.expires = new Date(value2);
+    } else if (key === "max-age") {
+      var n = parseInt(value2, 10);
+      if (!Number.isNaN(n)) cookie.maxAge = n;
+    } else if (key === "secure") {
+      cookie.secure = true;
+    } else if (key === "httponly") {
+      cookie.httpOnly = true;
+    } else if (key === "samesite") {
+      cookie.sameSite = value2;
+    } else if (key === "partitioned") {
+      cookie.partitioned = true;
+    } else if (key) {
+      cookie[key] = value2;
+    }
+  });
+  return cookie;
+}
+function parseNameValuePair(nameValuePairStr) {
+  var name = "";
+  var value = "";
+  var nameValueArr = nameValuePairStr.split("=");
+  if (nameValueArr.length > 1) {
+    name = nameValueArr.shift();
+    value = nameValueArr.join("=");
+  } else {
+    value = nameValuePairStr;
+  }
+  return { name, value };
+}
+function parseSetCookie(input, options) {
+  options = options ? Object.assign({}, defaultParseOptions, options) : defaultParseOptions;
+  if (!input) {
+    if (!options.map) {
+      return [];
+    } else {
+      return createNullObj();
+    }
+  }
+  if (input.headers) {
+    if (typeof input.headers.getSetCookie === "function") {
+      input = input.headers.getSetCookie();
+    } else if (input.headers["set-cookie"]) {
+      input = input.headers["set-cookie"];
+    } else {
+      var sch = input.headers[Object.keys(input.headers).find(function(key) {
+        return key.toLowerCase() === "set-cookie";
+      })];
+      if (!sch && input.headers.cookie && !options.silent) {
+        console.warn(
+          "Warning: set-cookie-parser appears to have been called on a request object. It is designed to parse Set-Cookie headers from responses, not Cookie headers from requests. Set the option {silent: true} to suppress this warning."
+        );
+      }
+      input = sch;
+    }
+  }
+  var split = options.split;
+  var isArray = Array.isArray(input);
+  if (split === "auto") {
+    split = !isArray;
+  }
+  if (!isArray) {
+    input = [input];
+  }
+  input = input.filter(isNonEmptyString);
+  if (split) {
+    input = input.map(splitCookiesString).flat();
+  }
+  if (!options.map) {
+    return input.map(function(str) {
+      return parseString(str, options);
+    }).filter(Boolean);
+  } else {
+    var cookies = createNullObj();
+    return input.reduce(function(cookies2, str) {
+      var cookie = parseString(str, options);
+      if (cookie && !isForbiddenKey(cookie.name)) {
+        cookies2[cookie.name] = cookie;
+      }
+      return cookies2;
+    }, cookies);
+  }
+}
+function splitCookiesString(cookiesString) {
+  if (Array.isArray(cookiesString)) {
+    return cookiesString;
+  }
+  if (typeof cookiesString !== "string") {
+    return [];
+  }
+  var cookiesStrings = [];
+  var pos = 0;
+  var start;
+  var ch;
+  var lastComma;
+  var nextStart;
+  var cookiesSeparatorFound;
+  function skipWhitespace() {
+    while (pos < cookiesString.length && /\s/.test(cookiesString.charAt(pos))) {
+      pos += 1;
+    }
+    return pos < cookiesString.length;
+  }
+  function notSpecialChar() {
+    ch = cookiesString.charAt(pos);
+    return ch !== "=" && ch !== ";" && ch !== ",";
+  }
+  while (pos < cookiesString.length) {
+    start = pos;
+    cookiesSeparatorFound = false;
+    while (skipWhitespace()) {
+      ch = cookiesString.charAt(pos);
+      if (ch === ",") {
+        lastComma = pos;
+        pos += 1;
+        skipWhitespace();
+        nextStart = pos;
+        while (pos < cookiesString.length && notSpecialChar()) {
+          pos += 1;
+        }
+        if (pos < cookiesString.length && cookiesString.charAt(pos) === "=") {
+          cookiesSeparatorFound = true;
+          pos = nextStart;
+          cookiesStrings.push(cookiesString.substring(start, lastComma));
+          start = pos;
+        } else {
+          pos = lastComma + 1;
+        }
+      } else {
+        pos += 1;
+      }
+    }
+    if (!cookiesSeparatorFound || pos >= cookiesString.length) {
+      cookiesStrings.push(cookiesString.substring(start, cookiesString.length));
+    }
+  }
+  return cookiesStrings;
+}
+parseSetCookie.parseSetCookie = parseSetCookie;
+parseSetCookie.parse = parseSetCookie;
+parseSetCookie.parseString = parseString;
+parseSetCookie.splitCookiesString = splitCookiesString;
+const UNDEFINED = -1;
+const HOLE = -2;
+const NAN = -3;
+const POSITIVE_INFINITY = -4;
+const NEGATIVE_INFINITY = -5;
+const NEGATIVE_ZERO = -6;
+const SPARSE = -7;
+const MAX_ARRAY_LEN = 2 ** 32 - 1;
+const MAX_ARRAY_INDEX = MAX_ARRAY_LEN - 1;
+const escaped = {
+  "<": "\\u003C",
+  "\\": "\\\\",
+  "\b": "\\b",
+  "\f": "\\f",
+  "\n": "\\n",
+  "\r": "\\r",
+  "	": "\\t",
+  "\u2028": "\\u2028",
+  "\u2029": "\\u2029"
+};
+class DevalueError extends Error {
+  /**
+   * @param {string} message
+   * @param {string[]} keys
+   * @param {any} [value] - The value that failed to be serialized
+   * @param {any} [root] - The root value being serialized
+   */
+  constructor(message, keys, value, root) {
+    super(message);
+    this.name = "DevalueError";
+    this.path = keys.join("");
+    this.value = value;
+    this.root = root;
+  }
+}
+function is_primitive(thing) {
+  return thing === null || typeof thing !== "object" && typeof thing !== "function";
+}
+const object_proto_names$1 = /* @__PURE__ */ Object.getOwnPropertyNames(Object.prototype).sort().join("\0");
+function is_plain_object$1(thing) {
+  const proto = Object.getPrototypeOf(thing);
+  return proto === Object.prototype || proto === null || Object.getPrototypeOf(proto) === null || Object.getOwnPropertyNames(proto).sort().join("\0") === object_proto_names$1;
+}
+function get_type(thing) {
+  return Object.prototype.toString.call(thing).slice(8, -1);
+}
+function get_escaped_char(char) {
+  switch (char) {
+    case '"':
+      return '\\"';
+    case "<":
+      return "\\u003C";
+    case "\\":
+      return "\\\\";
+    case "\n":
+      return "\\n";
+    case "\r":
+      return "\\r";
+    case "	":
+      return "\\t";
+    case "\b":
+      return "\\b";
+    case "\f":
+      return "\\f";
+    case "\u2028":
+      return "\\u2028";
+    case "\u2029":
+      return "\\u2029";
+    default:
+      return char < " " ? `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}` : "";
+  }
+}
+function stringify_string(str) {
+  let result = "";
+  let last_pos = 0;
+  const len = str.length;
+  for (let i = 0; i < len; i += 1) {
+    const char = str[i];
+    const replacement = get_escaped_char(char);
+    if (replacement) {
+      result += str.slice(last_pos, i) + replacement;
+      last_pos = i + 1;
+    }
+  }
+  return `"${last_pos === 0 ? str : result + str.slice(last_pos)}"`;
+}
+function enumerable_symbols(object) {
+  return Object.getOwnPropertySymbols(object).filter(
+    (symbol) => Object.getOwnPropertyDescriptor(object, symbol).enumerable
+  );
+}
+const is_identifier = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
+function stringify_key(key) {
+  return is_identifier.test(key) ? "." + key : "[" + JSON.stringify(key) + "]";
+}
+function is_valid_array_index(n) {
+  if (!Number.isInteger(n)) return false;
+  if (n < 0) return false;
+  if (n > MAX_ARRAY_INDEX) return false;
+  return true;
+}
+function is_valid_array_len(n) {
+  if (!Number.isInteger(n)) return false;
+  if (n < 0) return false;
+  if (n > MAX_ARRAY_LEN) return false;
+  return true;
+}
+function is_valid_array_index_string(s) {
+  if (s.length === 0) return false;
+  if (s.length > 1 && s.charCodeAt(0) === 48) return false;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c < 48 || c > 57) return false;
+  }
+  return is_valid_array_index(+s);
+}
+function array_index_cut(keys) {
+  for (var i = keys.length - 1; i >= 0; i--) {
+    if (is_valid_array_index_string(keys[i])) {
+      break;
+    }
+  }
+  return i + 1;
+}
+function valid_array_indices(array) {
+  const keys = Object.keys(array);
+  keys.length = array_index_cut(keys);
+  return keys;
+}
+const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$";
+const unsafe_chars = /[<\b\f\n\r\t\0\u2028\u2029]/g;
+const reserved = /^(?:do|if|in|for|int|let|new|try|var|byte|case|char|else|enum|goto|long|this|void|with|await|break|catch|class|const|final|float|short|super|throw|while|yield|delete|double|export|import|native|return|switch|throws|typeof|boolean|default|extends|finally|package|private|abstract|continue|debugger|function|volatile|interface|protected|transient|implements|instanceof|synchronized)$/;
+function uneval(value, replacer) {
+  const counts = /* @__PURE__ */ new Map();
+  const keys = [];
+  const custom = /* @__PURE__ */ new Map();
+  function walk(thing) {
+    if (!is_primitive(thing)) {
+      if (counts.has(thing)) {
+        counts.set(thing, counts.get(thing) + 1);
+        return;
+      }
+      counts.set(thing, 1);
+      if (replacer) {
+        const str2 = replacer(thing, (value2) => uneval(value2, replacer));
+        if (typeof str2 === "string") {
+          custom.set(thing, str2);
+          return;
+        }
+      }
+      if (typeof thing === "function") {
+        throw new DevalueError(`Cannot stringify a function`, keys, thing, value);
+      }
+      const type = get_type(thing);
+      switch (type) {
+        case "Number":
+        case "BigInt":
+        case "String":
+        case "Boolean":
+        case "Date":
+        case "RegExp":
+        case "URL":
+        case "URLSearchParams":
+          return;
+        case "Array":
+          thing.forEach((value2, i) => {
+            keys.push(`[${i}]`);
+            walk(value2);
+            keys.pop();
+          });
+          break;
+        case "Set":
+          Array.from(thing).forEach(walk);
+          break;
+        case "Map":
+          for (const [key, value2] of thing) {
+            keys.push(`.get(${is_primitive(key) ? stringify_primitive$1(key) : "..."})`);
+            walk(key);
+            walk(value2);
+            keys.pop();
+          }
+          break;
+        case "Int8Array":
+        case "Uint8Array":
+        case "Uint8ClampedArray":
+        case "Int16Array":
+        case "Uint16Array":
+        case "Float16Array":
+        case "Int32Array":
+        case "Uint32Array":
+        case "Float32Array":
+        case "Float64Array":
+        case "BigInt64Array":
+        case "BigUint64Array":
+        case "DataView":
+          walk(thing.buffer);
+          return;
+        case "ArrayBuffer":
+          return;
+        case "Temporal.Duration":
+        case "Temporal.Instant":
+        case "Temporal.PlainDate":
+        case "Temporal.PlainTime":
+        case "Temporal.PlainDateTime":
+        case "Temporal.PlainMonthDay":
+        case "Temporal.PlainYearMonth":
+        case "Temporal.ZonedDateTime":
+          return;
+        default:
+          if (!is_plain_object$1(thing)) {
+            throw new DevalueError(`Cannot stringify arbitrary non-POJOs`, keys, thing, value);
+          }
+          if (enumerable_symbols(thing).length > 0) {
+            throw new DevalueError(`Cannot stringify POJOs with symbolic keys`, keys, thing, value);
+          }
+          for (const key of Object.keys(thing)) {
+            if (key === "__proto__") {
+              throw new DevalueError(
+                `Cannot stringify objects with __proto__ keys`,
+                keys,
+                thing,
+                value
+              );
+            }
+            keys.push(stringify_key(key));
+            walk(thing[key]);
+            keys.pop();
+          }
+      }
+    } else if (typeof thing === "symbol") {
+      throw new DevalueError(`Cannot stringify a Symbol primitive`, keys, thing, value);
+    }
+  }
+  walk(value);
+  const names = /* @__PURE__ */ new Map();
+  Array.from(counts).filter((entry) => entry[1] > 1).sort((a, b) => b[1] - a[1]).forEach((entry, i) => {
+    names.set(entry[0], get_name(i));
+  });
+  function stringify2(thing) {
+    if (names.has(thing)) {
+      return names.get(thing);
+    }
+    if (is_primitive(thing)) {
+      return stringify_primitive$1(thing);
+    }
+    if (custom.has(thing)) {
+      return custom.get(thing);
+    }
+    const type = get_type(thing);
+    switch (type) {
+      case "Number":
+      case "String":
+      case "Boolean":
+      case "BigInt":
+        return `Object(${stringify2(thing.valueOf())})`;
+      case "RegExp":
+        const { source, flags } = thing;
+        return flags ? `new RegExp(${stringify_string(source)},"${flags}")` : `new RegExp(${stringify_string(source)})`;
+      case "Date":
+        return `new Date(${thing.getTime()})`;
+      case "URL":
+        return `new URL(${stringify_string(thing.toString())})`;
+      case "URLSearchParams":
+        return `new URLSearchParams(${stringify_string(thing.toString())})`;
+      case "Array": {
+        let has_holes = false;
+        let result = "[";
+        for (let i = 0; i < thing.length; i += 1) {
+          if (i > 0) result += ",";
+          if (Object.hasOwn(thing, i)) {
+            result += stringify2(thing[i]);
+          } else if (!has_holes) {
+            const populated_keys = valid_array_indices(
+              /** @type {any[]} */
+              thing
+            );
+            const population = populated_keys.length;
+            const d = String(thing.length).length;
+            const hole_cost = thing.length + 2;
+            const sparse_cost = 25 + d + population * (d + 2);
+            if (hole_cost > sparse_cost) {
+              const entries = populated_keys.map((k) => `${k}:${stringify2(thing[k])}`).join(",");
+              return `Object.assign(Array(${thing.length}),{${entries}})`;
+            }
+            has_holes = true;
+          }
+        }
+        const tail = thing.length === 0 || thing.length - 1 in thing ? "" : ",";
+        return result + tail + "]";
+      }
+      case "Set":
+      case "Map":
+        return `new ${type}([${Array.from(thing).map(stringify2).join(",")}])`;
+      case "Int8Array":
+      case "Uint8Array":
+      case "Uint8ClampedArray":
+      case "Int16Array":
+      case "Uint16Array":
+      case "Float16Array":
+      case "Int32Array":
+      case "Uint32Array":
+      case "Float32Array":
+      case "Float64Array":
+      case "BigInt64Array":
+      case "BigUint64Array": {
+        let str2 = `new ${type}`;
+        if (!names.has(thing.buffer)) {
+          str2 += `([${stringify_typed_array_elements(new thing.constructor(thing.buffer))}])`;
+        } else {
+          str2 += `(${stringify2(thing.buffer)})`;
+        }
+        if (thing.byteLength !== thing.buffer.byteLength) {
+          const start = thing.byteOffset / thing.BYTES_PER_ELEMENT;
+          const end = start + thing.length;
+          str2 += `.subarray(${start},${end})`;
+        }
+        return str2;
+      }
+      case "DataView": {
+        let str2 = `new DataView`;
+        if (!names.has(thing.buffer)) {
+          str2 += `(new Uint8Array([${new Uint8Array(thing.buffer)}]).buffer`;
+        } else {
+          str2 += `(${stringify2(thing.buffer)}`;
+        }
+        if (thing.byteLength !== thing.buffer.byteLength) {
+          str2 += `,${thing.byteOffset},${thing.byteLength}`;
+        }
+        return str2 + ")";
+      }
+      case "ArrayBuffer": {
+        const ui8 = new Uint8Array(thing);
+        return `new Uint8Array([${ui8.toString()}]).buffer`;
+      }
+      case "Temporal.Duration":
+      case "Temporal.Instant":
+      case "Temporal.PlainDate":
+      case "Temporal.PlainTime":
+      case "Temporal.PlainDateTime":
+      case "Temporal.PlainMonthDay":
+      case "Temporal.PlainYearMonth":
+      case "Temporal.ZonedDateTime":
+        return `${type}.from(${stringify_string(thing.toString())})`;
+      default:
+        const keys2 = Object.keys(thing);
+        const obj = keys2.map((key) => `${safe_key(key)}:${stringify2(thing[key])}`).join(",");
+        const proto = Object.getPrototypeOf(thing);
+        if (proto === null) {
+          return keys2.length > 0 ? `{${obj},__proto__:null}` : `{__proto__:null}`;
+        }
+        return `{${obj}}`;
+    }
+  }
+  const str = stringify2(value);
+  if (names.size) {
+    const params = [];
+    const statements = [];
+    const values = [];
+    const reconstructions = [];
+    names.forEach((name, thing) => {
+      params.push(name);
+      if (custom.has(thing)) {
+        values.push(
+          /** @type {string} */
+          custom.get(thing)
+        );
+        return;
+      }
+      if (is_primitive(thing)) {
+        values.push(stringify_primitive$1(thing));
+        return;
+      }
+      const type = get_type(thing);
+      switch (type) {
+        case "Number":
+        case "String":
+        case "Boolean":
+        case "BigInt":
+          values.push(`Object(${stringify2(thing.valueOf())})`);
+          break;
+        case "RegExp":
+          const { source, flags } = thing;
+          const regexp = flags ? `new RegExp(${stringify_string(source)},"${flags}")` : `new RegExp(${stringify_string(source)})`;
+          values.push(regexp);
+          break;
+        case "Date":
+          values.push(`new Date(${thing.getTime()})`);
+          break;
+        case "URL":
+          values.push(`new URL(${stringify_string(thing.toString())})`);
+          break;
+        case "URLSearchParams":
+          values.push(`new URLSearchParams(${stringify_string(thing.toString())})`);
+          break;
+        case "Array":
+          values.push(`Array(${thing.length})`);
+          thing.forEach((v, i) => {
+            statements.push(`${name}[${i}]=${stringify2(v)}`);
+          });
+          break;
+        case "Set": {
+          values.push(`new Set`);
+          const adds = Array.from(thing).map((v) => `.add(${stringify2(v)})`);
+          if (adds.length > 0) statements.push(name + adds.join(""));
+          break;
+        }
+        case "Map": {
+          values.push(`new Map`);
+          const sets = Array.from(thing).map(
+            ([k, v]) => `.set(${stringify2(k)}, ${stringify2(v)})`
+          );
+          if (sets.length > 0) statements.push(name + sets.join(""));
+          break;
+        }
+        case "Int8Array":
+        case "Uint8Array":
+        case "Uint8ClampedArray":
+        case "Int16Array":
+        case "Uint16Array":
+        case "Float16Array":
+        case "Int32Array":
+        case "Uint32Array":
+        case "Float32Array":
+        case "Float64Array":
+        case "BigInt64Array":
+        case "BigUint64Array": {
+          let str2 = `new ${type}`;
+          if (!names.has(thing.buffer)) {
+            str2 += `([${stringify_typed_array_elements(new thing.constructor(thing.buffer))}])`;
+          } else {
+            str2 += `(${stringify2(thing.buffer)})`;
+          }
+          if (thing.byteLength !== thing.buffer.byteLength) {
+            const start = thing.byteOffset / thing.BYTES_PER_ELEMENT;
+            const end = start + thing.length;
+            str2 += `.subarray(${start},${end})`;
+          }
+          values.push(`{}`);
+          reconstructions.push(`${name}=${str2}`);
+          break;
+        }
+        case "DataView": {
+          let str2 = `new DataView`;
+          if (!names.has(thing.buffer)) {
+            str2 += `(new Uint8Array([${new Uint8Array(thing.buffer)}]).buffer`;
+          } else {
+            str2 += `(${stringify2(thing.buffer)}`;
+          }
+          if (thing.byteLength !== thing.buffer.byteLength) {
+            str2 += `,${thing.byteOffset},${thing.byteLength}`;
+          }
+          str2 += ")";
+          values.push(`{}`);
+          reconstructions.push(`${name}=${str2}`);
+          break;
+        }
+        case "ArrayBuffer":
+          values.push(`new Uint8Array([${new Uint8Array(thing)}]).buffer`);
+          break;
+        case "Temporal.Duration":
+        case "Temporal.Instant":
+        case "Temporal.PlainDate":
+        case "Temporal.PlainTime":
+        case "Temporal.PlainDateTime":
+        case "Temporal.PlainMonthDay":
+        case "Temporal.PlainYearMonth":
+        case "Temporal.ZonedDateTime":
+          values.push(`${type}.from(${stringify_string(thing.toString())})`);
+          break;
+        default:
+          values.push(Object.getPrototypeOf(thing) === null ? "Object.create(null)" : "{}");
+          Object.keys(thing).forEach((key) => {
+            statements.push(`${name}${safe_prop(key)}=${stringify2(thing[key])}`);
+          });
+      }
+    });
+    statements.push(`return ${str}`);
+    const body = [...reconstructions, ...statements].join(";");
+    return `(function(${params.join(",")}){${body}}(${values.join(",")}))`;
+  } else {
+    return str;
+  }
+}
+function stringify_typed_array_elements(array) {
+  if (array instanceof BigInt64Array || array instanceof BigUint64Array) {
+    return Array.from(array, (element) => `${element}n`).join(",");
+  }
+  return array.toString();
+}
+function get_name(num) {
+  let name = "";
+  do {
+    name = chars[num % chars.length] + name;
+    num = ~~(num / chars.length) - 1;
+  } while (num >= 0);
+  return reserved.test(name) ? `${name}0` : name;
+}
+function escape_unsafe_char(c) {
+  return escaped[c] || c;
+}
+function escape_unsafe_chars(str) {
+  return str.replace(unsafe_chars, escape_unsafe_char);
+}
+function safe_key(key) {
+  return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key) ? key : escape_unsafe_chars(JSON.stringify(key));
+}
+function safe_prop(key) {
+  return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key) ? `.${key}` : `[${escape_unsafe_chars(JSON.stringify(key))}]`;
+}
+function stringify_primitive$1(thing) {
+  const type = typeof thing;
+  if (type === "string") return stringify_string(thing);
+  if (thing === void 0) return "void 0";
+  if (thing === 0 && 1 / thing < 0) return "-0";
+  const str = String(thing);
+  if (type === "number") return str.replace(/^(-)?0\./, "$1.");
+  if (type === "bigint") return thing + "n";
+  return str;
+}
 function encode_native(array_buffer) {
   return new Uint8Array(array_buffer).toBase64();
 }
@@ -53,10 +761,92 @@ const native = typeof Uint8Array.fromBase64 === "function";
 const buffer = typeof process === "object" && process.versions?.node !== void 0;
 const encode64 = native ? encode_native : buffer ? encode_buffer : encode_legacy;
 const decode64 = native ? decode_native : buffer ? decode_buffer : decode_legacy;
-function parse(serialized, revivers) {
+function merge_operations(defaults, overrides) {
+  return defaults;
+}
+const NOT_PLAIN = Object.freeze({ kind: "not-plain" });
+const SYMBOL_KEYS = Object.freeze({ kind: "symbol-keys" });
+const stringify_operations = {
+  identify: (value) => value,
+  typeOf: (value) => value === null ? "null" : typeof value,
+  toPrimitive: (value) => value,
+  tagOf: (value) => get_type(value),
+  isThenable: (value) => typeof value.then === "function",
+  toPromise: (thenable) => Promise.resolve(thenable),
+  unbox: (boxed) => boxed.valueOf(),
+  toISOString: (date) => isNaN(date.getDate()) ? "" : date.toISOString(),
+  toStringValue: (value) => value.toString(),
+  regExpInfo: (regexp) => ({ source: regexp.source, flags: regexp.flags }),
+  valuesOf: (set) => set,
+  entriesOf: (map) => map,
+  viewInfo: (view) => ({
+    buffer: view.buffer,
+    byteOffset: view.byteOffset,
+    byteLength: view.byteLength,
+    length: view.length,
+    bufferByteLength: view.buffer.byteLength
+  }),
+  toArrayBuffer: (buffer2) => buffer2,
+  lengthOf: (array) => array.length,
+  hasOwn: (value, key) => Object.hasOwn(value, key),
+  indicesOf: (array) => valid_array_indices(array),
+  shapeOf: (value) => {
+    if (!is_plain_object$1(value)) return NOT_PLAIN;
+    if (enumerable_symbols(value).length > 0) return SYMBOL_KEYS;
+    return {
+      kind: Object.getPrototypeOf(value) === null ? "null-proto" : "plain",
+      keys: Object.keys(value)
+    };
+  },
+  get: (value, key) => value[key]
+};
+const default_stringify_operations = Object.freeze(stringify_operations);
+const parse_operations = {
+  fromPrimitive: (primitive) => primitive,
+  fromISOString: (iso) => new Date(iso),
+  fromStringValue: (tag, text2) => {
+    if (tag === "URL") return new URL(text2);
+    if (tag === "URLSearchParams") return new URLSearchParams(text2);
+    return Temporal[tag.slice(9)].from(text2);
+  },
+  fromArrayBuffer: (buffer2) => buffer2,
+  fromRegExpInfo: (source, flags) => new RegExp(source, flags),
+  fromViewInfo: (tag, buffer2, byteOffset, length) => {
+    const Constructor = (
+      /** @type {any} */
+      globalThis[tag]
+    );
+    return byteOffset !== void 0 ? new Constructor(buffer2, byteOffset, length) : new Constructor(buffer2);
+  },
+  box: (value) => Object(value),
+  createArray: (length) => new Array(length),
+  createSparseArray: (length) => {
+    const array = [];
+    array[MAX_ARRAY_INDEX] = void 0;
+    delete array[MAX_ARRAY_INDEX];
+    array.length = length;
+    return array;
+  },
+  createObject: () => ({}),
+  createNullPrototypeObject: () => /* @__PURE__ */ Object.create(null),
+  createSet: () => /* @__PURE__ */ new Set(),
+  createMap: () => /* @__PURE__ */ new Map(),
+  set: (target, key, value) => {
+    target[key] = value;
+  },
+  addValue: (set, value) => {
+    set.add(value);
+  },
+  addEntry: (map, key, value) => {
+    map.set(key, value);
+  }
+};
+const default_parse_operations = Object.freeze(parse_operations);
+function parse(serialized, revivers, options) {
   return unflatten(JSON.parse(serialized), revivers);
 }
-function unflatten(parsed, revivers) {
+function unflatten(parsed, revivers, options) {
+  const ops = merge_operations(default_parse_operations);
   if (typeof parsed === "number") return hydrate(parsed, true);
   if (!Array.isArray(parsed) || parsed.length === 0) {
     throw new Error("Invalid input");
@@ -68,18 +858,18 @@ function unflatten(parsed, revivers) {
   const hydrated = Array(values.length);
   let hydrating = null;
   function hydrate(index, standalone = false) {
-    if (index === UNDEFINED) return void 0;
-    if (index === NAN) return NaN;
-    if (index === POSITIVE_INFINITY) return Infinity;
-    if (index === NEGATIVE_INFINITY) return -Infinity;
-    if (index === NEGATIVE_ZERO) return -0;
+    if (index === UNDEFINED) return ops.fromPrimitive(void 0);
+    if (index === NAN) return ops.fromPrimitive(NaN);
+    if (index === POSITIVE_INFINITY) return ops.fromPrimitive(Infinity);
+    if (index === NEGATIVE_INFINITY) return ops.fromPrimitive(-Infinity);
+    if (index === NEGATIVE_ZERO) return ops.fromPrimitive(-0);
     if (standalone || typeof index !== "number") {
       throw new Error(`Invalid input`);
     }
     if (index in hydrated) return hydrated[index];
     const value = values[index];
     if (!value || typeof value !== "object") {
-      hydrated[index] = value;
+      hydrated[index] = ops.fromPrimitive(value);
     } else if (Array.isArray(value)) {
       if (typeof value[0] === "string") {
         const type = value[0];
@@ -88,6 +878,9 @@ function unflatten(parsed, revivers) {
           let i = value[1];
           if (typeof i !== "number") {
             i = values.push(value[1]) - 1;
+          }
+          if (Object.hasOwn(hydrated, i)) {
+            return hydrated[index] = reviver(hydrated[i]);
           }
           hydrating ??= /* @__PURE__ */ new Set();
           if (hydrating.has(i)) {
@@ -100,44 +893,44 @@ function unflatten(parsed, revivers) {
         }
         switch (type) {
           case "Date":
-            hydrated[index] = new Date(value[1]);
+            hydrated[index] = ops.fromISOString(value[1]);
             break;
           case "Set":
-            const set = /* @__PURE__ */ new Set();
+            const set = ops.createSet();
             hydrated[index] = set;
             for (let i = 1; i < value.length; i += 1) {
-              set.add(hydrate(value[i]));
+              ops.addValue(set, hydrate(value[i]));
             }
             break;
           case "Map":
-            const map = /* @__PURE__ */ new Map();
+            const map = ops.createMap();
             hydrated[index] = map;
             for (let i = 1; i < value.length; i += 2) {
-              map.set(hydrate(value[i]), hydrate(value[i + 1]));
+              ops.addEntry(map, hydrate(value[i]), hydrate(value[i + 1]));
             }
             break;
           case "RegExp":
-            hydrated[index] = new RegExp(value[1], value[2]);
+            hydrated[index] = ops.fromRegExpInfo(value[1], value[2]);
             break;
           case "Object": {
             const wrapped_index = value[1];
             if (typeof values[wrapped_index] === "object" && values[wrapped_index][0] !== "BigInt") {
               throw new Error("Invalid input");
             }
-            hydrated[index] = Object(hydrate(wrapped_index));
+            hydrated[index] = ops.box(hydrate(wrapped_index));
             break;
           }
           case "BigInt":
-            hydrated[index] = BigInt(value[1]);
+            hydrated[index] = ops.fromPrimitive(BigInt(value[1]));
             break;
           case "null":
-            const obj = /* @__PURE__ */ Object.create(null);
+            const obj = ops.createNullPrototypeObject();
             hydrated[index] = obj;
             for (let i = 1; i < value.length; i += 2) {
               if (value[i] === "__proto__") {
                 throw new Error("Cannot parse an object with a `__proto__` property");
               }
-              obj[value[i]] = hydrate(value[i + 1]);
+              ops.set(obj, value[i], hydrate(value[i + 1]));
             }
             break;
           case "Int8Array":
@@ -156,9 +949,8 @@ function unflatten(parsed, revivers) {
             if (values[value[1]][0] !== "ArrayBuffer") {
               throw new Error("Invalid data");
             }
-            const TypedArrayConstructor = globalThis[type];
             const buffer2 = hydrate(value[1]);
-            hydrated[index] = value[2] !== void 0 ? new TypedArrayConstructor(buffer2, value[2], value[3]) : new TypedArrayConstructor(buffer2);
+            hydrated[index] = ops.fromViewInfo(type, buffer2, value[2], value[3]);
             break;
           }
           case "ArrayBuffer": {
@@ -166,10 +958,11 @@ function unflatten(parsed, revivers) {
             if (typeof base64 !== "string") {
               throw new Error("Invalid ArrayBuffer encoding");
             }
-            const arraybuffer = decode64(base64);
-            hydrated[index] = arraybuffer;
+            hydrated[index] = ops.fromArrayBuffer(decode64(base64));
             break;
           }
+          case "URL":
+          case "URLSearchParams":
           case "Temporal.Duration":
           case "Temporal.Instant":
           case "Temporal.PlainDate":
@@ -178,18 +971,7 @@ function unflatten(parsed, revivers) {
           case "Temporal.PlainMonthDay":
           case "Temporal.PlainYearMonth":
           case "Temporal.ZonedDateTime": {
-            const temporalName = type.slice(9);
-            hydrated[index] = Temporal[temporalName].from(value[1]);
-            break;
-          }
-          case "URL": {
-            const url = new URL(value[1]);
-            hydrated[index] = url;
-            break;
-          }
-          case "URLSearchParams": {
-            const url = new URLSearchParams(value[1]);
-            hydrated[index] = url;
+            hydrated[index] = ops.fromStringValue(type, value[1]);
             break;
           }
           default:
@@ -200,47 +982,44 @@ function unflatten(parsed, revivers) {
         if (!is_valid_array_len(len)) {
           throw new Error("Invalid input");
         }
-        const array = [];
+        const array = ops.createSparseArray(len);
         hydrated[index] = array;
-        array[MAX_ARRAY_INDEX] = void 0;
-        delete array[MAX_ARRAY_INDEX];
         for (let i = 2; i < value.length; i += 2) {
           const idx = value[i];
           if (!is_valid_array_index(idx) || idx >= len) {
             throw new Error("Invalid input");
           }
-          array[idx] = hydrate(value[i + 1]);
+          ops.set(array, idx, hydrate(value[i + 1]));
         }
-        array.length = len;
       } else {
-        const array = new Array(value.length);
+        const array = ops.createArray(value.length);
         hydrated[index] = array;
         for (let i = 0; i < value.length; i += 1) {
           const n = value[i];
           if (n === HOLE) continue;
-          array[i] = hydrate(n);
+          ops.set(array, i, hydrate(n));
         }
       }
     } else {
-      const object = {};
+      const object = ops.createObject();
       hydrated[index] = object;
       for (const key of Object.keys(value)) {
         if (key === "__proto__") {
           throw new Error("Cannot parse an object with a `__proto__` property");
         }
-        const n = value[key];
-        object[key] = hydrate(n);
+        ops.set(object, key, hydrate(value[key]));
       }
     }
     return hydrated[index];
   }
   return hydrate(0);
 }
-function stringify$1(value, reducers) {
+function stringify$1(value, reducers, options) {
   const stringified = run(false, value, reducers);
   return typeof stringified === "string" ? stringified : `[${stringified.join(",")}]`;
 }
-function run(async, value, reducers) {
+function run(async, value, reducers, options) {
+  const ops = merge_operations(default_stringify_operations);
   const stringified = [];
   const indexes = /* @__PURE__ */ new Map();
   const custom = [];
@@ -252,17 +1031,24 @@ function run(async, value, reducers) {
   const keys = [];
   let p = 0;
   function flatten(thing, index2) {
-    if (thing === void 0) return UNDEFINED;
-    if (Number.isNaN(thing)) return NAN;
-    if (thing === Infinity) return POSITIVE_INFINITY;
-    if (thing === -Infinity) return NEGATIVE_INFINITY;
-    if (thing === 0 && 1 / thing < 0) return NEGATIVE_ZERO;
-    if (indexes.has(thing)) return (
+    const type = ops.typeOf(thing);
+    if (type === "undefined") return UNDEFINED;
+    let number;
+    if (type === "number") {
+      number = /** @type {number} */
+      ops.toPrimitive(thing);
+      if (Number.isNaN(number)) return NAN;
+      if (number === Infinity) return POSITIVE_INFINITY;
+      if (number === -Infinity) return NEGATIVE_INFINITY;
+      if (number === 0 && 1 / number < 0) return NEGATIVE_ZERO;
+    }
+    const id = ops.identify(thing);
+    if (indexes.has(id)) return (
       /** @type {number} */
-      indexes.get(thing)
+      indexes.get(id)
     );
     index2 ??= p++;
-    indexes.set(thing, index2);
+    indexes.set(id, index2);
     for (const { key, fn } of custom) {
       const value2 = fn(thing);
       if (value2) {
@@ -270,15 +1056,15 @@ function run(async, value, reducers) {
         return index2;
       }
     }
-    if (typeof thing === "function") {
+    if (type === "function") {
       throw new DevalueError(`Cannot stringify a function`, keys, thing, value);
-    } else if (typeof thing === "symbol") {
+    } else if (type === "symbol") {
       throw new DevalueError(`Cannot stringify a Symbol primitive`, keys, thing, value);
     }
     let str = "";
-    if (is_primitive(thing)) {
-      str = stringify_primitive(thing);
-    } else if (typeof thing.then === "function") {
+    if (type !== "object") {
+      str = stringify_primitive(type === "number" ? number : ops.toPrimitive(thing));
+    } else if (ops.isThenable(thing)) {
       {
         throw new DevalueError(
           `Cannot stringify a Promise or thenable — use stringifyAsync instead`,
@@ -288,54 +1074,51 @@ function run(async, value, reducers) {
         );
       }
     } else {
-      const type = get_type(thing);
-      switch (type) {
+      const tag = ops.tagOf(thing);
+      switch (tag) {
         case "Number":
         case "String":
         case "Boolean":
         case "BigInt":
-          str = `["Object",${flatten(thing.valueOf())}]`;
+          str = `["Object",${flatten(ops.unbox(thing))}]`;
           break;
         case "Date":
-          const valid = !isNaN(thing.getDate());
-          str = `["Date","${valid ? thing.toISOString() : ""}"]`;
+          str = `["Date","${ops.toISOString(thing)}"]`;
           break;
         case "URL":
-          str = `["URL",${stringify_string(thing.toString())}]`;
+          str = `["URL",${stringify_string(ops.toStringValue(thing))}]`;
           break;
         case "URLSearchParams":
-          str = `["URLSearchParams",${stringify_string(thing.toString())}]`;
+          str = `["URLSearchParams",${stringify_string(ops.toStringValue(thing))}]`;
           break;
         case "RegExp":
-          const { source, flags } = thing;
+          const { source, flags } = ops.regExpInfo(thing);
           str = flags ? `["RegExp",${stringify_string(source)},"${flags}"]` : `["RegExp",${stringify_string(source)}]`;
           break;
         case "Array": {
           let mostly_dense = false;
+          const length = ops.lengthOf(thing);
           str = "[";
-          for (let i = 0; i < thing.length; i += 1) {
+          for (let i = 0; i < length; i += 1) {
             if (i > 0) str += ",";
-            if (Object.hasOwn(thing, i)) {
+            if (ops.hasOwn(thing, i)) {
               keys.push(`[${i}]`);
-              str += flatten(thing[i]);
+              str += flatten(ops.get(thing, i));
               keys.pop();
             } else if (mostly_dense) {
               str += HOLE;
             } else {
-              const populated_keys = valid_array_indices(
-                /** @type {any[]} */
-                thing
-              );
+              const populated_keys = ops.indicesOf(thing);
               const population = populated_keys.length;
-              const d = String(thing.length).length;
-              const hole_cost = (thing.length - population) * 3;
+              const d = String(length).length;
+              const hole_cost = (length - population) * 3;
               const sparse_cost = 4 + d + population * (d + 1);
               if (hole_cost > sparse_cost) {
-                str = "[" + SPARSE + "," + thing.length;
+                str = "[" + SPARSE + "," + length;
                 for (let j = 0; j < populated_keys.length; j++) {
                   const key = populated_keys[j];
                   keys.push(`[${key}]`);
-                  str += "," + key + "," + flatten(thing[key]);
+                  str += "," + key + "," + flatten(ops.get(thing, key));
                   keys.pop();
                 }
                 break;
@@ -350,15 +1133,19 @@ function run(async, value, reducers) {
         }
         case "Set":
           str = '["Set"';
-          for (const value2 of thing) {
+          for (const value2 of ops.valuesOf(thing)) {
             str += `,${flatten(value2)}`;
           }
           str += "]";
           break;
         case "Map":
           str = '["Map"';
-          for (const [key, value2] of thing) {
-            keys.push(`.get(${is_primitive(key) ? stringify_primitive(key) : "..."})`);
+          for (const [key, value2] of ops.entriesOf(thing)) {
+            const key_type = ops.typeOf(key);
+            const key_is_primitive = key_type !== "object" && key_type !== "function" && key_type !== "symbol";
+            keys.push(
+              `.get(${key_is_primitive ? stringify_primitive(ops.toPrimitive(key)) : "..."})`
+            );
             str += `,${flatten(key)},${flatten(value2)}`;
             keys.pop();
           }
@@ -375,19 +1162,26 @@ function run(async, value, reducers) {
         case "Float32Array":
         case "Float64Array":
         case "BigInt64Array":
-        case "BigUint64Array":
+        case "BigUint64Array": {
+          const info = ops.viewInfo(thing);
+          str = '["' + tag + '",' + flatten(info.buffer);
+          if (info.byteLength !== info.bufferByteLength) {
+            str += `,${info.byteOffset},${info.length}`;
+          }
+          str += "]";
+          break;
+        }
         case "DataView": {
-          const typedArray = thing;
-          str = '["' + type + '",' + flatten(typedArray.buffer);
-          if (typedArray.byteLength !== typedArray.buffer.byteLength) {
-            str += `,${typedArray.byteOffset},${typedArray.length}`;
+          const info = ops.viewInfo(thing);
+          str = '["' + tag + '",' + flatten(info.buffer);
+          if (info.byteLength !== info.bufferByteLength) {
+            str += `,${info.byteOffset},${info.byteLength}`;
           }
           str += "]";
           break;
         }
         case "ArrayBuffer": {
-          const arraybuffer = thing;
-          const base64 = encode64(arraybuffer);
+          const base64 = encode64(ops.toArrayBuffer(thing));
           str = `["ArrayBuffer","${base64}"]`;
           break;
         }
@@ -399,18 +1193,19 @@ function run(async, value, reducers) {
         case "Temporal.PlainMonthDay":
         case "Temporal.PlainYearMonth":
         case "Temporal.ZonedDateTime":
-          str = `["${type}",${stringify_string(thing.toString())}]`;
+          str = `["${tag}",${stringify_string(ops.toStringValue(thing))}]`;
           break;
-        default:
-          if (!is_plain_object$1(thing)) {
+        default: {
+          const shape = ops.shapeOf(thing);
+          if (shape.kind === "not-plain") {
             throw new DevalueError(`Cannot stringify arbitrary non-POJOs`, keys, thing, value);
           }
-          if (enumerable_symbols(thing).length > 0) {
+          if (shape.kind === "symbol-keys") {
             throw new DevalueError(`Cannot stringify POJOs with symbolic keys`, keys, thing, value);
           }
-          if (Object.getPrototypeOf(thing) === null) {
+          if (shape.kind === "null-proto") {
             str = '["null"';
-            for (const key of Object.keys(thing)) {
+            for (const key of shape.keys) {
               if (key === "__proto__") {
                 throw new DevalueError(
                   `Cannot stringify objects with __proto__ keys`,
@@ -420,14 +1215,14 @@ function run(async, value, reducers) {
                 );
               }
               keys.push(stringify_key(key));
-              str += `,${stringify_string(key)},${flatten(thing[key])}`;
+              str += `,${stringify_string(key)},${flatten(ops.get(thing, key))}`;
               keys.pop();
             }
             str += "]";
           } else {
             str = "{";
             let started = false;
-            for (const key of Object.keys(thing)) {
+            for (const key of shape.keys) {
               if (key === "__proto__") {
                 throw new DevalueError(
                   `Cannot stringify objects with __proto__ keys`,
@@ -439,11 +1234,12 @@ function run(async, value, reducers) {
               if (started) str += ",";
               started = true;
               keys.push(stringify_key(key));
-              str += `${stringify_string(key)}:${flatten(thing[key])}`;
+              str += `${stringify_string(key)}:${flatten(ops.get(thing, key))}`;
               keys.pop();
             }
             str += "}";
           }
+        }
       }
     }
     stringified[index2] = str;
@@ -472,18 +1268,17 @@ function set_nested_value(object, path_string, value) {
   }
   deep_set(object, split_path(path_string), value);
 }
+const DELETE_KEY = {};
 function convert_formdata(data) {
   const result = {};
   for (let key of data.keys()) {
     const is_array = key.endsWith("[]");
     let values = data.getAll(key);
     if (is_array) key = key.slice(0, -2);
-    if (values.length > 1 && !is_array) {
-      throw new Error(`Form cannot contain duplicated keys — "${key}" has ${values.length} values`);
-    }
     values = values.filter(
       (entry) => typeof entry === "string" || entry.name !== "" || entry.size > 0
     );
+    if (values.length === 0 && !is_array) continue;
     if (key.startsWith("n:")) {
       key = key.slice(2);
       values = values.map((v) => v === "" ? void 0 : parseFloat(
@@ -493,6 +1288,9 @@ function convert_formdata(data) {
     } else if (key.startsWith("b:")) {
       key = key.slice(2);
       values = values.map((v) => v === "on");
+    }
+    if (values.length > 1 && !is_array) {
+      throw new Error(`Form cannot contain duplicated keys — "${key}" has ${values.length} values`);
     }
     set_nested_value(result, key, is_array ? values : values[0]);
   }
@@ -508,10 +1306,6 @@ async function deserialize_binary_form(request) {
   }
   if (!request.body) {
     throw deserialize_error("no body");
-  }
-  const content_length = parseInt(request.headers.get("content-length") ?? "");
-  if (Number.isNaN(content_length)) {
-    throw deserialize_error("invalid Content-Length header");
   }
   const reader = request.body.getReader();
   const chunks = [];
@@ -568,13 +1362,7 @@ async function deserialize_binary_form(request) {
   }
   const header_view = new DataView(header.buffer, header.byteOffset, header.byteLength);
   const data_length = header_view.getUint32(1, true);
-  if (HEADER_BYTES + data_length > content_length) {
-    throw deserialize_error("data overflow");
-  }
   const file_offsets_length = header_view.getUint16(5, true);
-  if (HEADER_BYTES + data_length + file_offsets_length > content_length) {
-    throw deserialize_error("file offset table overflow");
-  }
   const data_buffer = await get_buffer(HEADER_BYTES, data_length);
   if (!data_buffer) throw deserialize_error("data too short");
   let file_offsets;
@@ -602,9 +1390,6 @@ async function deserialize_binary_form(request) {
       }
       file_offsets[index] = void 0;
       offset += files_start_offset;
-      if (offset + size > content_length) {
-        throw deserialize_error("file data overflow");
-      }
       file_spans.push({ offset, size });
       return new Proxy(new LazyFile(name, type, size, last_modified, get_chunk, offset), {
         getPrototypeOf() {
@@ -631,7 +1416,7 @@ async function deserialize_binary_form(request) {
       const chunk = await get_chunk(chunks.length);
       has_more = !!chunk;
     }
-  })();
+  })().catch(noop);
   return { data, meta, form_data: null };
 }
 function deserialize_error(message) {
@@ -776,13 +1561,20 @@ function deep_set(object, keys, value) {
       throw new Error(`Invalid array key ${keys[i + 1]}`);
     }
     if (!exists) {
+      if (value === DELETE_KEY) {
+        return;
+      }
       current[key] = is_array ? [] : {};
     }
     current = current[key];
   }
   const final_key = keys[keys.length - 1];
   check_prototype_pollution(final_key);
-  current[final_key] = value;
+  if (value === DELETE_KEY) {
+    delete current[final_key];
+  } else {
+    current[final_key] = value;
+  }
 }
 function normalize_issue(issue, server = false) {
   const normalized = { name: "", path: [], message: issue.message, server };
@@ -842,9 +1634,26 @@ function get_type_prefix(field_type, is_array, input_value) {
   }
   return "";
 }
+function deep_clone(value) {
+  if (value !== null && typeof value === "object") {
+    if (value instanceof File) {
+      return value;
+    }
+    if (Array.isArray(value)) {
+      return value.map(deep_clone);
+    }
+    const clone = {};
+    for (const key of Object.keys(value)) {
+      clone[key] = deep_clone(value[key]);
+    }
+    return clone;
+  }
+  return value;
+}
 function create_field_proxy(target, get_input, set_input, get_issues, path = []) {
   const get_value = () => {
-    return deep_get(get_input(), path);
+    const value = deep_get(get_input(), path);
+    return deep_clone(value);
   };
   return new Proxy(target, {
     get(target2, prop) {
@@ -875,10 +1684,11 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
               message: issue.message
             }));
           }
-          return all_issues?.filter((issue) => issue.name === key)?.map((issue) => ({
+          const issues = all_issues?.filter((issue) => issue.name === key)?.map((issue) => ({
             path: issue.path,
             message: issue.message
           }));
+          return issues?.length ? issues : void 0;
         };
         return create_field_proxy(issues_func, get_input, set_input, get_issues, [...path, prop]);
       }
@@ -897,8 +1707,9 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
             base_props.type = type === "file multiple" ? "file" : type;
           }
           if (type === "submit" || type === "hidden") {
+            const value = typeof input_value === "boolean" ? input_value ? "on" : "off" : input_value;
             return Object.defineProperties(base_props, {
-              value: { value: input_value, enumerable: true }
+              value: { value, enumerable: true }
             });
           }
           if (type === "select" || type === "select multiple") {
@@ -1042,6 +1853,13 @@ function negotiate(accept, types) {
     }
   }
   return accepted;
+}
+function get_set_cookies(headers) {
+  if (typeof headers.getSetCookie === "function") {
+    return headers.getSetCookie();
+  }
+  const set_cookie = headers.get("set-cookie");
+  return set_cookie ? splitCookiesString(set_cookie) : [];
 }
 function is_content_type(request, ...types) {
   const type = request.headers.get("content-type")?.split(";", 1)[0].trim() ?? "";
@@ -1213,63 +2031,16 @@ function get_node_type(node_id) {
   const dot_parts = filename.split(".");
   return dot_parts.slice(0, -1).join(".");
 }
-function hydratable(key, fn) {
-  {
-    experimental_async_required();
-  }
-  const { hydratable: hydratable2 } = get_render_context();
-  let entry = hydratable2.lookup.get(key);
-  if (entry !== void 0) {
-    return (
-      /** @type {T} */
-      entry.value
-    );
-  }
-  const value = fn();
-  entry = encode(key, value, hydratable2.unresolved_promises);
-  hydratable2.lookup.set(key, entry);
-  return value;
-}
-function encode(key, value, unresolved) {
-  const entry = { value, serialized: "" };
-  let uid = 1;
-  entry.serialized = uneval(entry.value, (value2, uneval2) => {
-    if (is_promise(value2)) {
-      const placeholder = `"${uid++}"`;
-      const p = value2.then((v) => {
-        entry.serialized = entry.serialized.replace(
-          placeholder,
-          // use the function form here to prevent any string replacement characters from being interpreted
-          // in `v`, as it's potentially user-controlled and therefore potentially malicious.
-          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#specifying_a_string_as_the_replacement
-          () => `r(${uneval2(v)})`
-        );
-      }).catch(
-        (devalue_error) => hydratable_serialization_failed(
-          key,
-          serialization_stack(entry.stack, devalue_error?.stack)
-        )
-      );
-      p.catch(() => {
-      }).finally(() => unresolved?.delete(p));
-      (entry.promises ??= []).push(p);
-      return placeholder;
+function create_replacer(transport) {
+  const replacer = (thing) => {
+    for (const key in transport) {
+      const encoded = transport[key].encode(thing);
+      if (encoded) {
+        return `app.decode('${key}', ${uneval(encoded, replacer)})`;
+      }
     }
-  });
-  return entry;
-}
-function is_promise(value) {
-  return Object.prototype.toString.call(value) === "[object Promise]";
-}
-function serialization_stack(root_stack, uneval_stack) {
-  let out = "";
-  if (root_stack) {
-    out += root_stack + "\n";
-  }
-  if (uneval_stack) {
-    out += "Caused by:\n" + uneval_stack + "\n";
-  }
-  return out || "<missing stack trace>";
+  };
+  return replacer;
 }
 const INVALIDATED_PARAM = "x-sveltekit-invalidated";
 const TRAILING_SLASH_PARAM = "x-sveltekit-trailing-slash";
@@ -1301,20 +2072,19 @@ function to_sorted(value, clones) {
 const remote_object = "__skrao";
 const remote_map = "__skram";
 const remote_set = "__skras";
+const remote_file = "__skraf";
 const remote_regex_guard = "__skrag";
 const remote_arg_marker = Symbol(remote_object);
 function create_remote_arg_reducers(transport, sort, remote_arg_clones) {
   const remote_fns_reducers = {
-    [remote_regex_guard]: (
-      /** @type {(value: unknown) => void} */
-      (value) => {
-        if (value instanceof RegExp) {
-          throw new Error("Regular expressions are not valid remote function arguments");
-        }
+    /** @param {unknown} value */
+    [remote_regex_guard]: (value) => {
+      if (value instanceof RegExp) {
+        throw new Error("Regular expressions are not valid remote function arguments");
       }
-    )
+    }
   };
-  if (sort) {
+  {
     remote_fns_reducers[remote_map] = (value) => {
       if (!(value instanceof Map)) {
         return;
@@ -1394,6 +2164,14 @@ function create_remote_arg_revivers(transport) {
         set.add(parse$1(item));
       }
       return set;
+    },
+    /** @type {(value: any) => File} */
+    [remote_file]: (value) => {
+      if (!value || typeof value !== "object" || typeof value.name !== "string" || typeof value.type !== "string" || typeof value.size !== "number" || typeof value.lastModified !== "number" || !(value.data instanceof ArrayBuffer)) {
+        throw new Error("Invalid data for File reviver");
+      }
+      const { data, name, ...meta } = value;
+      return new File([data], name, meta);
     }
   };
   const user_revivers = Object.fromEntries(
@@ -1403,13 +2181,13 @@ function create_remote_arg_revivers(transport) {
   const parse$1 = (data) => parse(data, all_revivers);
   return all_revivers;
 }
-function stringify_remote_arg(value, transport, sort = true) {
+function stringify_remote_arg(value, transport) {
   if (value === void 0) return "";
-  const json_string = stringify$1(
-    value,
-    create_remote_arg_reducers(transport, sort, /* @__PURE__ */ new Map())
-  );
-  const bytes = text_encoder.encode(json_string);
+  const json2 = stringify$1(value, create_remote_arg_reducers(transport, true, /* @__PURE__ */ new Map()));
+  return url_friendly_base64_encode(json2);
+}
+function url_friendly_base64_encode(string) {
+  const bytes = text_encoder.encode(string);
   return base64_encode(bytes).replaceAll("=", "").replaceAll("+", "-").replaceAll("/", "_");
 }
 function parse_remote_arg(string, transport) {
@@ -1433,49 +2211,46 @@ function split_remote_key(key) {
     payload: key.slice(i + 1)
   };
 }
-function unfriendly_hydratable(key, fn) {
-  if (!hydratable) {
-    throw new Error("Remote functions require Svelte 5.44.0 or later");
-  }
-  return hydratable(key, fn);
-}
 export {
-  create_field_proxy as A,
-  normalize_issue as B,
-  set_nested_value as C,
-  flatten_issues as D,
+  handle_fatal_error as A,
+  format_server_error as B,
+  parse as C,
+  create_field_proxy as D,
   ENDPOINT_METHODS as E,
-  deep_set as F,
-  stringify_remote_arg as G,
+  normalize_issue as F,
+  set_nested_value as G,
+  flatten_issues as H,
   INVALIDATED_PARAM as I,
+  deep_set as J,
+  stringify_remote_arg as K,
   MUTATIVE_METHODS as M,
   PAGE_METHODS as P,
   SVELTE_KIT_ASSETS as S,
   TRAILING_SLASH_PARAM as T,
   normalize_error as a,
-  get_global_name as b,
-  serialize_uses as c,
-  clarify_devalue_error as d,
-  get_node_type as e,
-  noop as f,
+  noop as b,
+  create_replacer as c,
+  get_global_name as d,
+  serialize_uses as e,
+  clarify_devalue_error as f,
   get_status as g,
   handle_error_and_jsonify as h,
   is_form_content_type as i,
-  escape_html as j,
-  create_remote_key as k,
-  static_error_page as l,
+  get_node_type as j,
+  escape_html as k,
+  create_remote_key as l,
   method_not_allowed as m,
   negotiate as n,
-  stringify as o,
+  deserialize_binary_form as o,
   parse_remote_arg as p,
-  deserialize_binary_form as q,
-  redirect_response as r,
+  stringify as q,
+  split_remote_key as r,
   stringify$1 as s,
-  split_remote_key as t,
-  once as u,
-  has_prerendered_path as v,
-  handle_fatal_error as w,
-  format_server_error as x,
-  unfriendly_hydratable as y,
-  parse as z
+  static_error_page as t,
+  uneval as u,
+  redirect_response as v,
+  once as w,
+  has_prerendered_path as x,
+  get_set_cookies as y,
+  parseString as z
 };
