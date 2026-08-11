@@ -2986,118 +2986,98 @@ function redirect_json_response(redirect) {
     }
   );
 }
-var dist = {};
-var hasRequiredDist;
-function requireDist() {
-  if (hasRequiredDist) return dist;
-  hasRequiredDist = 1;
-  Object.defineProperty(dist, "__esModule", { value: true });
-  dist.parse = parse;
-  dist.serialize = serialize;
-  const cookieNameRegExp = /^[\u0021-\u003A\u003C\u003E-\u007E]+$/;
-  const cookieValueRegExp = /^[\u0021-\u003A\u003C-\u007E]*$/;
-  const domainValueRegExp = /^([.]?[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)([.][a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/i;
-  const pathValueRegExp = /^[\u0020-\u003A\u003D-\u007E]*$/;
-  const __toString = Object.prototype.toString;
-  const NullObject = /* @__PURE__ */ (() => {
-    const C = function() {
-    };
-    C.prototype = /* @__PURE__ */ Object.create(null);
-    return C;
-  })();
+var cookie = {};
+var hasRequiredCookie;
+function requireCookie() {
+  if (hasRequiredCookie) return cookie;
+  hasRequiredCookie = 1;
+  cookie.parse = parse;
+  cookie.serialize = serialize;
+  var __toString = Object.prototype.toString;
+  var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
   function parse(str, options2) {
-    const obj = new NullObject();
-    const len = str.length;
-    if (len < 2)
-      return obj;
-    const dec = options2?.decode || decode;
-    let index = 0;
-    do {
-      const eqIdx = str.indexOf("=", index);
-      if (eqIdx === -1)
+    if (typeof str !== "string") {
+      throw new TypeError("argument str must be a string");
+    }
+    var obj = {};
+    var opt = options2 || {};
+    var dec = opt.decode || decode;
+    var index = 0;
+    while (index < str.length) {
+      var eqIdx = str.indexOf("=", index);
+      if (eqIdx === -1) {
         break;
-      const colonIdx = str.indexOf(";", index);
-      const endIdx = colonIdx === -1 ? len : colonIdx;
-      if (eqIdx > endIdx) {
+      }
+      var endIdx = str.indexOf(";", index);
+      if (endIdx === -1) {
+        endIdx = str.length;
+      } else if (endIdx < eqIdx) {
         index = str.lastIndexOf(";", eqIdx - 1) + 1;
         continue;
       }
-      const keyStartIdx = startIndex(str, index, eqIdx);
-      const keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
-      const key2 = str.slice(keyStartIdx, keyEndIdx);
-      if (obj[key2] === void 0) {
-        let valStartIdx = startIndex(str, eqIdx + 1, endIdx);
-        let valEndIdx = endIndex(str, endIdx, valStartIdx);
-        const value = dec(str.slice(valStartIdx, valEndIdx));
-        obj[key2] = value;
+      var key2 = str.slice(index, eqIdx).trim();
+      if (void 0 === obj[key2]) {
+        var val = str.slice(eqIdx + 1, endIdx).trim();
+        if (val.charCodeAt(0) === 34) {
+          val = val.slice(1, -1);
+        }
+        obj[key2] = tryDecode(val, dec);
       }
       index = endIdx + 1;
-    } while (index < len);
+    }
     return obj;
   }
-  function startIndex(str, index, max) {
-    do {
-      const code = str.charCodeAt(index);
-      if (code !== 32 && code !== 9)
-        return index;
-    } while (++index < max);
-    return max;
-  }
-  function endIndex(str, index, min) {
-    while (index > min) {
-      const code = str.charCodeAt(--index);
-      if (code !== 32 && code !== 9)
-        return index + 1;
-    }
-    return min;
-  }
   function serialize(name, val, options2) {
-    const enc = options2?.encode || encodeURIComponent;
-    if (!cookieNameRegExp.test(name)) {
-      throw new TypeError(`argument name is invalid: ${name}`);
+    var opt = options2 || {};
+    var enc = opt.encode || encode2;
+    if (typeof enc !== "function") {
+      throw new TypeError("option encode is invalid");
     }
-    const value = enc(val);
-    if (!cookieValueRegExp.test(value)) {
-      throw new TypeError(`argument val is invalid: ${val}`);
+    if (!fieldContentRegExp.test(name)) {
+      throw new TypeError("argument name is invalid");
     }
-    let str = name + "=" + value;
-    if (!options2)
-      return str;
-    if (options2.maxAge !== void 0) {
-      if (!Number.isInteger(options2.maxAge)) {
-        throw new TypeError(`option maxAge is invalid: ${options2.maxAge}`);
+    var value = enc(val);
+    if (value && !fieldContentRegExp.test(value)) {
+      throw new TypeError("argument val is invalid");
+    }
+    var str = name + "=" + value;
+    if (null != opt.maxAge) {
+      var maxAge = opt.maxAge - 0;
+      if (isNaN(maxAge) || !isFinite(maxAge)) {
+        throw new TypeError("option maxAge is invalid");
       }
-      str += "; Max-Age=" + options2.maxAge;
+      str += "; Max-Age=" + Math.floor(maxAge);
     }
-    if (options2.domain) {
-      if (!domainValueRegExp.test(options2.domain)) {
-        throw new TypeError(`option domain is invalid: ${options2.domain}`);
+    if (opt.domain) {
+      if (!fieldContentRegExp.test(opt.domain)) {
+        throw new TypeError("option domain is invalid");
       }
-      str += "; Domain=" + options2.domain;
+      str += "; Domain=" + opt.domain;
     }
-    if (options2.path) {
-      if (!pathValueRegExp.test(options2.path)) {
-        throw new TypeError(`option path is invalid: ${options2.path}`);
+    if (opt.path) {
+      if (!fieldContentRegExp.test(opt.path)) {
+        throw new TypeError("option path is invalid");
       }
-      str += "; Path=" + options2.path;
+      str += "; Path=" + opt.path;
     }
-    if (options2.expires) {
-      if (!isDate(options2.expires) || !Number.isFinite(options2.expires.valueOf())) {
-        throw new TypeError(`option expires is invalid: ${options2.expires}`);
+    if (opt.expires) {
+      var expires = opt.expires;
+      if (!isDate(expires) || isNaN(expires.valueOf())) {
+        throw new TypeError("option expires is invalid");
       }
-      str += "; Expires=" + options2.expires.toUTCString();
+      str += "; Expires=" + expires.toUTCString();
     }
-    if (options2.httpOnly) {
+    if (opt.httpOnly) {
       str += "; HttpOnly";
     }
-    if (options2.secure) {
+    if (opt.secure) {
       str += "; Secure";
     }
-    if (options2.partitioned) {
+    if (opt.partitioned) {
       str += "; Partitioned";
     }
-    if (options2.priority) {
-      const priority = typeof options2.priority === "string" ? options2.priority.toLowerCase() : void 0;
+    if (opt.priority) {
+      var priority = typeof opt.priority === "string" ? opt.priority.toLowerCase() : opt.priority;
       switch (priority) {
         case "low":
           str += "; Priority=Low";
@@ -3109,43 +3089,49 @@ function requireDist() {
           str += "; Priority=High";
           break;
         default:
-          throw new TypeError(`option priority is invalid: ${options2.priority}`);
+          throw new TypeError("option priority is invalid");
       }
     }
-    if (options2.sameSite) {
-      const sameSite = typeof options2.sameSite === "string" ? options2.sameSite.toLowerCase() : options2.sameSite;
+    if (opt.sameSite) {
+      var sameSite = typeof opt.sameSite === "string" ? opt.sameSite.toLowerCase() : opt.sameSite;
       switch (sameSite) {
         case true:
-        case "strict":
           str += "; SameSite=Strict";
           break;
         case "lax":
           str += "; SameSite=Lax";
           break;
+        case "strict":
+          str += "; SameSite=Strict";
+          break;
         case "none":
           str += "; SameSite=None";
           break;
         default:
-          throw new TypeError(`option sameSite is invalid: ${options2.sameSite}`);
+          throw new TypeError("option sameSite is invalid");
       }
     }
     return str;
   }
   function decode(str) {
-    if (str.indexOf("%") === -1)
-      return str;
+    return str.indexOf("%") !== -1 ? decodeURIComponent(str) : str;
+  }
+  function encode2(val) {
+    return encodeURIComponent(val);
+  }
+  function isDate(val) {
+    return __toString.call(val) === "[object Date]" || val instanceof Date;
+  }
+  function tryDecode(str, decode2) {
     try {
-      return decodeURIComponent(str);
+      return decode2(str);
     } catch (e) {
       return str;
     }
   }
-  function isDate(val) {
-    return __toString.call(val) === "[object Date]";
-  }
-  return dist;
+  return cookie;
 }
-var distExports = requireDist();
+var cookieExports = requireCookie();
 const INVALID_COOKIE_CHARACTER_REGEX = /[\x00-\x1F\x7F()<>@,;:"/[\]?={} \t]/;
 function validate_options(options2) {
   if (options2?.path === void 0) {
@@ -3157,7 +3143,7 @@ function generate_cookie_key(domain, path, name) {
 }
 function get_cookies(request, url) {
   const header = request.headers.get("cookie") ?? "";
-  const initial_cookies = distExports.parse(header, { decode: (value) => value });
+  const initial_cookies = cookieExports.parse(header, { decode: (value) => value });
   let normalized_url;
   const new_cookies = /* @__PURE__ */ new Map();
   const defaults = {
@@ -3181,15 +3167,15 @@ function get_cookies(request, url) {
       if (best_match) {
         return best_match.options.maxAge === 0 ? void 0 : best_match.value;
       }
-      const req_cookies = distExports.parse(header, { decode: opts?.decode });
-      const cookie = req_cookies[name];
-      return cookie;
+      const req_cookies = cookieExports.parse(header, { decode: opts?.decode });
+      const cookie2 = req_cookies[name];
+      return cookie2;
     },
     /**
      * @param {import('cookie').CookieParseOptions} [opts]
      */
     getAll(opts) {
-      const cookies2 = distExports.parse(header, { decode: opts?.decode });
+      const cookies2 = cookieExports.parse(header, { decode: opts?.decode });
       const lookup = /* @__PURE__ */ new Map();
       for (const c of new_cookies.values()) {
         if (domain_matches(url.hostname, c.options.domain) && path_matches(url.pathname, c.options.path)) {
@@ -3243,7 +3229,7 @@ function get_cookies(request, url) {
         }
         path = resolve(normalized_url, path);
       }
-      return distExports.serialize(name, value, { ...defaults, ...options2, path });
+      return cookieExports.serialize(name, value, { ...defaults, ...options2, path });
     }
   };
   function get_cookie_header(destination, header2) {
@@ -3251,14 +3237,14 @@ function get_cookies(request, url) {
       // cookies sent by the user agent have lowest precedence
       ...initial_cookies
     };
-    for (const cookie of new_cookies.values()) {
-      if (!domain_matches(destination.hostname, cookie.options.domain)) continue;
-      if (!path_matches(destination.pathname, cookie.options.path)) continue;
-      const encoder = cookie.options.encode || encodeURIComponent;
-      combined_cookies[cookie.name] = encoder(cookie.value);
+    for (const cookie2 of new_cookies.values()) {
+      if (!domain_matches(destination.hostname, cookie2.options.domain)) continue;
+      if (!path_matches(destination.pathname, cookie2.options.path)) continue;
+      const encoder = cookie2.options.encode || encodeURIComponent;
+      combined_cookies[cookie2.name] = encoder(cookie2.value);
     }
     if (header2) {
-      const parsed = distExports.parse(header2, { decode: (value) => value });
+      const parsed = cookieExports.parse(header2, { decode: (value) => value });
       for (const name in parsed) {
         combined_cookies[name] = parsed[name];
       }
@@ -3276,8 +3262,8 @@ function get_cookies(request, url) {
       path = resolve(normalized_url, path);
     }
     const cookie_key = generate_cookie_key(options2.domain, path, name);
-    const cookie = { name, value, options: { ...options2, path } };
-    new_cookies.set(cookie_key, cookie);
+    const cookie2 = { name, value, options: { ...options2, path } };
+    new_cookies.set(cookie_key, cookie2);
   }
   function set_trailing_slash(trailing_slash) {
     normalized_url = normalize_path(url.pathname, trailing_slash);
@@ -3300,10 +3286,10 @@ function path_matches(path, constraint) {
 function add_cookies_to_headers(headers2, cookies) {
   for (const new_cookie of cookies) {
     const { name, value, options: options2 } = new_cookie;
-    headers2.append("set-cookie", distExports.serialize(name, value, options2));
+    headers2.append("set-cookie", cookieExports.serialize(name, value, options2));
     if (options2.path.endsWith(".html")) {
       const path = add_data_suffix(options2.path);
-      headers2.append("set-cookie", distExports.serialize(name, value, { ...options2, path }));
+      headers2.append("set-cookie", cookieExports.serialize(name, value, { ...options2, path }));
     }
   }
 }
@@ -3331,8 +3317,8 @@ function create_fetch({ event, options: options2, manifest, state, get_cookie_he
         const decoded = decodeURIComponent(url.pathname);
         if (url.origin !== event.url.origin || base && decoded !== base && !decoded.startsWith(`${base}/`)) {
           if (`.${url.hostname}`.endsWith(`.${event.url.hostname}`) && credentials !== "omit") {
-            const cookie = get_cookie_header(url, request.headers.get("cookie"));
-            if (cookie) request.headers.set("cookie", cookie);
+            const cookie2 = get_cookie_header(url, request.headers.get("cookie"));
+            if (cookie2) request.headers.set("cookie", cookie2);
           }
           return fetch(request);
         }
@@ -3364,9 +3350,9 @@ function create_fetch({ event, options: options2, manifest, state, get_cookie_he
           return await fetch(request);
         }
         if (credentials !== "omit") {
-          const cookie = get_cookie_header(url, request.headers.get("cookie"));
-          if (cookie) {
-            request.headers.set("cookie", cookie);
+          const cookie2 = get_cookie_header(url, request.headers.get("cookie"));
+          if (cookie2) {
+            request.headers.set("cookie", cookie2);
           }
           const authorization = event.request.headers.get("authorization");
           if (authorization && !request.headers.has("authorization")) {
@@ -3804,8 +3790,8 @@ async function internal_respond(request, options2, manifest, state) {
           const value = response.headers.get(key2);
           if (value) headers22.set(key2, value);
         }
-        for (const cookie of get_set_cookies(response.headers)) {
-          headers22.append("set-cookie", cookie);
+        for (const cookie2 of get_set_cookies(response.headers)) {
+          headers22.append("set-cookie", cookie2);
         }
         return new Response(void 0, {
           status: 304,

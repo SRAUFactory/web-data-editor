@@ -3,7 +3,7 @@ import root from '../root.js';
 import { set_building, set_prerendering } from '$app/env/internal';
 import { set_assets } from '$app/paths/internal/server';
 import { set_manifest, set_read_implementation } from '__sveltekit/server';
-import { set_private_env, set_public_env } from '../../../node_modules/.pnpm/@sveltejs+kit@2.69.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.55.7_@typescript-eslin_62ab27e28aeae4db3b43dff4bdff2ab6/node_modules/@sveltejs/kit/src/runtime/shared-server.js';
+import { set_private_env, set_public_env } from '../../../node_modules/.pnpm/@sveltejs+kit@2.69.1_@sveltejs+vite-plugin-svelte@6.2.1_supports-color@7.2.0_svelte@5.5_9fe0220029f5e407ff7a1e62e4880e60/node_modules/@sveltejs/kit/src/runtime/shared-server.js';
 import error from '../shared/error-template.js';
 
 export const options = {
@@ -26,7 +26,7 @@ export const options = {
 		app: ({ head, body, assets, nonce, env }) => "<!doctype html>\n<html lang=\"en\">\n\t<head>\n\t\t<meta charset=\"utf-8\" />\n\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n\t\t" + head + "\n\t\t<!-- 100% privacy-first analytics -->\n\t\t<script async src=\"https://scripts.simpleanalyticscdn.com/latest.js\"></script>\n\t</head>\n\t<body data-sveltekit-preload-data=\"hover\">\n\t\t<div style=\"display: contents\">" + body + "</div>\n\t</body>\n</html>\n",
 		error
 	},
-	version_hash: "1gbstg2"
+	version_hash: "19dty6u"
 };
 
 export async function get_hooks() {
