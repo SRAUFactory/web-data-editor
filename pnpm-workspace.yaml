@@ -5,3 +5,5 @@ overrides:
   js-yaml: '^4.3.0'
   brace-expansion@1: '^1.1.16'
   brace-expansion@2: '^2.1.2'
+  esbuild: '^0.28.1'
+  cookie: '^0.7.0'

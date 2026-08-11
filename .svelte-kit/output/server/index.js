@@ -2994,68 +2994,92 @@ function requireCookie() {
   cookie.parse = parse;
   cookie.serialize = serialize;
   var __toString = Object.prototype.toString;
-  var fieldContentRegExp = /^[\u0009\u0020-\u007e\u0080-\u00ff]+$/;
-  function parse(str, options2) {
+  var __hasOwnProperty = Object.prototype.hasOwnProperty;
+  var cookieNameRegExp = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+  var cookieValueRegExp = /^("?)[\u0021\u0023-\u002B\u002D-\u003A\u003C-\u005B\u005D-\u007E]*\1$/;
+  var domainValueRegExp = /^([.]?[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)([.][a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/i;
+  var pathValueRegExp = /^[\u0020-\u003A\u003D-\u007E]*$/;
+  function parse(str, opt) {
     if (typeof str !== "string") {
       throw new TypeError("argument str must be a string");
     }
     var obj = {};
-    var opt = options2 || {};
-    var dec = opt.decode || decode;
+    var len = str.length;
+    if (len < 2) return obj;
+    var dec = opt && opt.decode || decode;
     var index = 0;
-    while (index < str.length) {
-      var eqIdx = str.indexOf("=", index);
-      if (eqIdx === -1) {
-        break;
-      }
-      var endIdx = str.indexOf(";", index);
+    var eqIdx = 0;
+    var endIdx = 0;
+    do {
+      eqIdx = str.indexOf("=", index);
+      if (eqIdx === -1) break;
+      endIdx = str.indexOf(";", index);
       if (endIdx === -1) {
-        endIdx = str.length;
-      } else if (endIdx < eqIdx) {
+        endIdx = len;
+      } else if (eqIdx > endIdx) {
         index = str.lastIndexOf(";", eqIdx - 1) + 1;
         continue;
       }
-      var key2 = str.slice(index, eqIdx).trim();
-      if (void 0 === obj[key2]) {
-        var val = str.slice(eqIdx + 1, endIdx).trim();
-        if (val.charCodeAt(0) === 34) {
-          val = val.slice(1, -1);
+      var keyStartIdx = startIndex(str, index, eqIdx);
+      var keyEndIdx = endIndex(str, eqIdx, keyStartIdx);
+      var key2 = str.slice(keyStartIdx, keyEndIdx);
+      if (!__hasOwnProperty.call(obj, key2)) {
+        var valStartIdx = startIndex(str, eqIdx + 1, endIdx);
+        var valEndIdx = endIndex(str, endIdx, valStartIdx);
+        if (str.charCodeAt(valStartIdx) === 34 && str.charCodeAt(valEndIdx - 1) === 34) {
+          valStartIdx++;
+          valEndIdx--;
         }
+        var val = str.slice(valStartIdx, valEndIdx);
         obj[key2] = tryDecode(val, dec);
       }
       index = endIdx + 1;
-    }
+    } while (index < len);
     return obj;
   }
-  function serialize(name, val, options2) {
-    var opt = options2 || {};
-    var enc = opt.encode || encode2;
+  function startIndex(str, index, max) {
+    do {
+      var code = str.charCodeAt(index);
+      if (code !== 32 && code !== 9) return index;
+    } while (++index < max);
+    return max;
+  }
+  function endIndex(str, index, min) {
+    while (index > min) {
+      var code = str.charCodeAt(--index);
+      if (code !== 32 && code !== 9) return index + 1;
+    }
+    return min;
+  }
+  function serialize(name, val, opt) {
+    var enc = opt && opt.encode || encodeURIComponent;
     if (typeof enc !== "function") {
       throw new TypeError("option encode is invalid");
     }
-    if (!fieldContentRegExp.test(name)) {
+    if (!cookieNameRegExp.test(name)) {
       throw new TypeError("argument name is invalid");
     }
     var value = enc(val);
-    if (value && !fieldContentRegExp.test(value)) {
+    if (!cookieValueRegExp.test(value)) {
       throw new TypeError("argument val is invalid");
     }
     var str = name + "=" + value;
+    if (!opt) return str;
     if (null != opt.maxAge) {
-      var maxAge = opt.maxAge - 0;
-      if (isNaN(maxAge) || !isFinite(maxAge)) {
+      var maxAge = Math.floor(opt.maxAge);
+      if (!isFinite(maxAge)) {
         throw new TypeError("option maxAge is invalid");
       }
-      str += "; Max-Age=" + Math.floor(maxAge);
+      str += "; Max-Age=" + maxAge;
     }
     if (opt.domain) {
-      if (!fieldContentRegExp.test(opt.domain)) {
+      if (!domainValueRegExp.test(opt.domain)) {
         throw new TypeError("option domain is invalid");
       }
       str += "; Domain=" + opt.domain;
     }
     if (opt.path) {
-      if (!fieldContentRegExp.test(opt.path)) {
+      if (!pathValueRegExp.test(opt.path)) {
         throw new TypeError("option path is invalid");
       }
       str += "; Path=" + opt.path;
@@ -3116,11 +3140,8 @@ function requireCookie() {
   function decode(str) {
     return str.indexOf("%") !== -1 ? decodeURIComponent(str) : str;
   }
-  function encode2(val) {
-    return encodeURIComponent(val);
-  }
   function isDate(val) {
-    return __toString.call(val) === "[object Date]" || val instanceof Date;
+    return __toString.call(val) === "[object Date]";
   }
   function tryDecode(str, decode2) {
     try {
