@@ -14,10 +14,6 @@
     "file": "chunks/exports.js",
     "name": "exports"
   },
-  "_false.js": {
-    "file": "chunks/false.js",
-    "name": "false"
-  },
   "_index.js": {
     "file": "chunks/index.js",
     "name": "index",
@@ -29,7 +25,7 @@
     "file": "chunks/index2.js",
     "name": "index",
     "imports": [
-      "_false.js"
+      "_uneval.js"
     ]
   },
   "_internal.js": {
@@ -55,8 +51,13 @@
     "file": "chunks/shared.js",
     "name": "shared",
     "imports": [
-      "_utils.js"
+      "_utils.js",
+      "_uneval.js"
     ]
+  },
+  "_uneval.js": {
+    "file": "chunks/uneval.js",
+    "name": "uneval"
   },
   "_utils.js": {
     "file": "chunks/utils.js",
@@ -69,7 +70,7 @@
     "isEntry": true,
     "imports": [
       "_shared.js",
-      "_false.js",
+      "_uneval.js",
       "_internal.js"
     ]
   },
@@ -93,7 +94,7 @@
     "isEntry": true,
     "imports": [
       "_shared.js",
-      "_false.js",
+      "_uneval.js",
       "_internal.js",
       "_exports.js",
       "_utils.js",
