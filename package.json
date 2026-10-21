@@ -37,5 +37,5 @@
 	"dependencies": {
 		"marked": "^5.1.1"
 	},
-	"packageManager": "pnpm@11.19.0"
+	"packageManager": "pnpm@12.14.0"
 }
