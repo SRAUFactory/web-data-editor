@@ -19,4 +19,3 @@ export default defineConfig({
 	],
 	base: '/web-data-editor/'
 });
-
