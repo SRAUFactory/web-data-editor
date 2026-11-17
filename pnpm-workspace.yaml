@@ -11,3 +11,4 @@ overrides:
   '@humanfs/node': '^0.16.8'
   devalue: '^5.9.3'
   source-map-js: '^1.2.2'
+  minimatch@9: '^11.0.1'
