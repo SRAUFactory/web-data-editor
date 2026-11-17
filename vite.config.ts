@@ -14,6 +14,9 @@ export default defineConfig({
 			}),
 			paths: {
 				base: '/web-data-editor'
+			},
+			alias: {
+				$lib: 'src/lib'
 			}
 		})
 	],
